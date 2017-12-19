@@ -1,12 +1,14 @@
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import javax.swing.JLabel;
 import javax.swing.AbstractButton;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
@@ -16,6 +18,8 @@ import java.awt.Insets;
 import javax.swing.JCheckBox;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MyProjectPanel extends JPanel{
 	private JLabel lblProjectImage;
@@ -35,6 +39,9 @@ public class MyProjectPanel extends JPanel{
 		setLayout(gridBagLayout);
 		
 		lblProjectImage = new JLabel("");
+		ImageIcon imageIcon = new ImageIcon(Projects.class.getResource("/resources/user.png")); 
+		Icon icon = new ImageIcon(imageIcon.getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT));
+		lblProjectImage.setIcon(icon);
 		lblProjectImage.setIcon(new ImageIcon(MyProjectPanel.class.getResource("/resources/project.png")));
 		GridBagConstraints gbc_lblProjectImage = new GridBagConstraints();
 		gbc_lblProjectImage.fill = GridBagConstraints.BOTH;
@@ -62,6 +69,10 @@ public class MyProjectPanel extends JPanel{
 	
 	public JCheckBox getCheckBox() {
 		return chckbxSelectProject;
+	}
+	
+	public JLabel getLabelImage() {
+		return lblProjectImage;
 	}
 	
 }

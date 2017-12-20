@@ -26,9 +26,11 @@ import javax.swing.AbstractListModel;
 import javax.swing.Icon;
 import java.awt.BorderLayout;
 
+import java.util.ArrayList;
+
 public class Projects {
 
-	private JFrame frame;
+	public JFrame frame;
 	private JPanel pnl_projects;
 	private JPanel panel;
 	private JPanel[] pnl_project;
@@ -41,6 +43,8 @@ public class Projects {
 	private JLabel lbl_Delete;
 	
 	private int num_selected_projects;
+	private ArrayList<MyProjectPanel> panels_selected; 
+	
 	private JPanel pnl_view_project;
 	private JLabel lbl_view_image;
 	private JLabel lbl_view_name;
@@ -54,22 +58,7 @@ public class Projects {
 	private JTextPane textPane_description;
 	private JList list;
 	private JPanel pnl_auxiliar;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Projects window = new Projects();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	private JButton btnEditProjectInfo;
 
 	/**
 	 * Create the application.
@@ -77,6 +66,7 @@ public class Projects {
 	public Projects() {
 		pnl_project = new JPanel[9];
 		num_selected_projects = 0;
+		panels_selected = new ArrayList<>();
 		initialize();
 	}
 
@@ -149,6 +139,7 @@ public class Projects {
 		panel.add(lbl_projects_selected, gbc_lbl_projects_selected);
 		
 		lbl_Delete = new JLabel("");
+		lbl_Delete.addMouseListener(new Lbl_DeleteMouseListener());
 		lbl_Delete.setIcon(new ImageIcon(Projects.class.getResource("/resources/trash.png")));
 		lbl_Delete.setVisible(false);
 		GridBagConstraints gbc_lbl_Delete = new GridBagConstraints();
@@ -183,9 +174,9 @@ public class Projects {
 		pnl_view_project.setVisible(false);
 		GridBagLayout gbl_pnl_view_project = new GridBagLayout();
 		gbl_pnl_view_project.columnWidths = new int[]{0, 0, 0, 0, 0, 0};
-		gbl_pnl_view_project.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
+		gbl_pnl_view_project.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_pnl_view_project.columnWeights = new double[]{0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
-		gbl_pnl_view_project.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_pnl_view_project.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE, 0.0, 0.0, 0.0};
 		pnl_view_project.setLayout(gbl_pnl_view_project);
 		
 		lbl_view_image = new JLabel("");
@@ -195,6 +186,13 @@ public class Projects {
 		gbc_lbl_view_image.gridx = 1;
 		gbc_lbl_view_image.gridy = 0;
 		pnl_view_project.add(lbl_view_image, gbc_lbl_view_image);
+		
+		btnEditProjectInfo = new JButton("EDIT");
+		GridBagConstraints gbc_btnEditProjectInfo = new GridBagConstraints();
+		gbc_btnEditProjectInfo.insets = new Insets(0, 0, 5, 5);
+		gbc_btnEditProjectInfo.gridx = 1;
+		gbc_btnEditProjectInfo.gridy = 8;
+		pnl_view_project.add(btnEditProjectInfo, gbc_btnEditProjectInfo);
 		
 		list = new JList();
 		list.setModel(new AbstractListModel() {
@@ -210,7 +208,7 @@ public class Projects {
 		GridBagConstraints gbc_list = new GridBagConstraints();
 		gbc_list.gridheight = 3;
 		gbc_list.gridwidth = 2;
-		gbc_list.insets = new Insets(0, 0, 5, 5);
+		gbc_list.insets = new Insets(0, 0, 5, 0);
 		gbc_list.fill = GridBagConstraints.BOTH;
 		gbc_list.gridx = 3;
 		gbc_list.gridy = 1;
@@ -310,12 +308,16 @@ public class Projects {
 	
 	private class ChckbxSelectProjectItemListener implements ItemListener {
 		public void itemStateChanged(ItemEvent arg0) {
-			if (((AbstractButton) arg0.getItem()).isSelected()) {
-				num_selected_projects += 1;
-			} else {
-				num_selected_projects -= 1;
+			panels_selected.clear();
+			// Obtain the selected panels.
+			for (int i = 0; i < 9; i++) {
+				if (((MyProjectPanel) pnl_project[i]).getCheckBox().isSelected()) {
+					panels_selected.add((MyProjectPanel) pnl_project[i]);
+				}
 			}
-			if (num_selected_projects > 0) {
+			System.out.println(panels_selected.toString());
+			
+			if (panels_selected.size() > 0) {
 				txtSearch.setVisible(false);
 				lbl_Delete.setVisible(true);
 				btn_search.setVisible(false);
@@ -323,7 +325,7 @@ public class Projects {
 				lbl_settings.setVisible(false);
 				lbl_projects_selected.setVisible(true);
 				lbl_projects_selected.setText("");
-				lbl_projects_selected.setText(num_selected_projects + " Project Selected");
+				lbl_projects_selected.setText(panels_selected.size() + " Project Selected");
 			} else {
 				lbl_projects_selected.setVisible(false);
 				txtSearch.setVisible(true);
@@ -345,6 +347,17 @@ public class Projects {
 			txt_view_created.setText("01/01/2000");
 			textPane_description.setText("Little description");
 			txt_view_manager.setText("Foo Bar");
+		}
+	}
+	private class Lbl_DeleteMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent mouse_event) {
+			System.out.println(panels_selected.size());
+			for (int i = 0; i < panels_selected.size(); i++) {
+				panels_selected.get(i).getCheckBox().setSelected(false);
+				pnl_projects.remove(panels_selected.get(i));
+			}
+			panels_selected.clear();
 		}
 	}
 }

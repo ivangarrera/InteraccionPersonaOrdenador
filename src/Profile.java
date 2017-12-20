@@ -19,10 +19,13 @@ import java.awt.Color;
 import java.awt.SystemColor;
 import javax.swing.UIManager;
 import javax.swing.JScrollBar;
+import javax.swing.AbstractListModel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Profile {
 
-	private JFrame frame;
+	public JFrame frame;
 	private JPanel pnl_image;
 	private JPanel pnl_user_data;
 	private JPanel pnl_user_other;
@@ -45,22 +48,6 @@ public class Profile {
 	private JButton btn_delete;
 	private JSeparator separator;
 	private JLabel lbl_last_access;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Profile window = new Profile();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the application.
@@ -210,6 +197,16 @@ public class Profile {
 		pnl_user_other.add(lbl_projects, gbc_lbl_projects);
 		
 		list_projects = new JList();
+		list_projects.addMouseListener(new List_projectsMouseListener());
+		list_projects.setModel(new AbstractListModel() {
+			String[] values = new String[] {"Project1", "Project2", "Project3", "Project4"};
+			public int getSize() {
+				return values.length;
+			}
+			public Object getElementAt(int index) {
+				return values[index];
+			}
+		});
 		list_projects.setBackground(SystemColor.window);
 		GridBagConstraints gbc_list_projects = new GridBagConstraints();
 		gbc_list_projects.insets = new Insets(0, 0, 5, 0);
@@ -227,6 +224,15 @@ public class Profile {
 		pnl_user_other.add(lbl_skills, gbc_lbl_skills);
 		
 		list_skills = new JList();
+		list_skills.setModel(new AbstractListModel() {
+			String[] values = new String[] {"Skill1", "Skill2", "Skill3", "Skill4"};
+			public int getSize() {
+				return values.length;
+			}
+			public Object getElementAt(int index) {
+				return values[index];
+			}
+		});
 		list_skills.setBackground(SystemColor.window);
 		GridBagConstraints gbc_list_skills = new GridBagConstraints();
 		gbc_list_skills.insets = new Insets(0, 0, 5, 0);
@@ -276,4 +282,15 @@ public class Profile {
 		frame.getContentPane().add(lbl_last_access, gbc_lbl_last_access);
 	}
 
+	private class List_projectsMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent mouse_event) {
+			try {
+				Projects window = new Projects();
+				window.frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }

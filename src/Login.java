@@ -14,6 +14,8 @@ import javax.swing.JButton;
 import javax.swing.SwingConstants;
 import javax.swing.JPasswordField;
 import javax.swing.ImageIcon;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Login {
 
@@ -150,6 +152,7 @@ public class Login {
 		textFieldusrlogin.setColumns(10);
 		
 		btnlogin = new JButton("LOG-IN");
+		btnlogin.addMouseListener(new BtnloginMouseListener());
 		GridBagConstraints gbc_btnlogin = new GridBagConstraints();
 		gbc_btnlogin.insets = new Insets(0, 0, 0, 5);
 		gbc_btnlogin.gridx = 1;
@@ -235,4 +238,15 @@ public class Login {
 		panel_new_user.add(passwordFieldnew, gbc_passwordFieldnew);
 	}
 
+	private class BtnloginMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent mouse_event) {
+			try {
+				Profile window = new Profile();
+				window.frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
+		}
+	}
 }

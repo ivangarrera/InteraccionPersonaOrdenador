@@ -33,7 +33,7 @@ public class Projects {
 	public JFrame frame;
 	private JPanel pnl_projects;
 	private JPanel panel;
-	private JPanel[] pnl_project;
+	private ArrayList<MyProjectPanel> pnl_project;
 	private JTextField txtSearch;
 	private JButton btn_search;
 	private JLabel lbl_filter;
@@ -42,7 +42,6 @@ public class Projects {
 	private JLabel lbl_projects_selected;
 	private JLabel lbl_Delete;
 	
-	private int num_selected_projects;
 	private ArrayList<MyProjectPanel> panels_selected; 
 	
 	private JPanel pnl_view_project;
@@ -64,8 +63,7 @@ public class Projects {
 	 * Create the application.
 	 */
 	public Projects() {
-		pnl_project = new JPanel[9];
-		num_selected_projects = 0;
+		pnl_project = new ArrayList<>();
 		panels_selected = new ArrayList<>();
 		initialize();
 	}
@@ -291,6 +289,7 @@ public class Projects {
 		txt_view_manager.setColumns(10);
 		
 		btnAddNewProject = new JButton("Add Project");
+		btnAddNewProject.addMouseListener(new BtnAddNewProjectMouseListener());
 		GridBagConstraints gbc_btnAddNewProject = new GridBagConstraints();
 		gbc_btnAddNewProject.insets = new Insets(0, 0, 0, 5);
 		gbc_btnAddNewProject.gridx = 0;
@@ -298,10 +297,10 @@ public class Projects {
 		frame.getContentPane().add(btnAddNewProject, gbc_btnAddNewProject);
 		
 		for (int i = 0; i < 9; i++) {
-			pnl_project[i] = new MyProjectPanel();
-			pnl_projects.add(pnl_project[i], "Project");
-			((MyProjectPanel) pnl_project[i]).getCheckBox().addItemListener(new ChckbxSelectProjectItemListener());
-			((MyProjectPanel) pnl_project[i]).getLabelImage().addMouseListener(new LblProjectImageMouseListener());
+			pnl_project.add(new MyProjectPanel());
+			pnl_projects.add(pnl_project.get(i), "Project");
+			pnl_project.get(i).getCheckBox().addItemListener(new ChckbxSelectProjectItemListener());
+			pnl_project.get(i).getLabelImage().addMouseListener(new LblProjectImageMouseListener());
 		}
 		
 	}
@@ -310,12 +309,11 @@ public class Projects {
 		public void itemStateChanged(ItemEvent arg0) {
 			panels_selected.clear();
 			// Obtain the selected panels.
-			for (int i = 0; i < 9; i++) {
-				if (((MyProjectPanel) pnl_project[i]).getCheckBox().isSelected()) {
-					panels_selected.add((MyProjectPanel) pnl_project[i]);
+			for (int i = 0; i < pnl_project.size(); i++) {
+				if (pnl_project.get(i).getCheckBox().isSelected()) {
+					panels_selected.add(pnl_project.get(i));
 				}
 			}
-			System.out.println(panels_selected.toString());
 			
 			if (panels_selected.size() > 0) {
 				txtSearch.setVisible(false);
@@ -337,11 +335,9 @@ public class Projects {
 		}
 	}
 	
-
 	private class LblProjectImageMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent event) {
-			System.out.println(event.getComponent());
 			pnl_view_project.setVisible(true);
 			txt_view_name.setText("Project1");
 			txt_view_created.setText("01/01/2000");
@@ -352,12 +348,25 @@ public class Projects {
 	private class Lbl_DeleteMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent mouse_event) {
-			System.out.println(panels_selected.size());
-			for (int i = 0; i < panels_selected.size(); i++) {
-				panels_selected.get(i).getCheckBox().setSelected(false);
-				pnl_projects.remove(panels_selected.get(i));
+			for (int i = 0; i < panels_selected.size(); ) {
+				MyProjectPanel my_panel = panels_selected.get(i);
+				my_panel.getCheckBox().setSelected(false);
+				pnl_projects.remove(my_panel);
+				pnl_project.remove(my_panel);
 			}
 			panels_selected.clear();
+		}
+	}
+	private class BtnAddNewProjectMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			int len = pnl_project.size();
+			if (len < 9) {
+				pnl_project.add(new MyProjectPanel());
+				pnl_projects.add(pnl_project.get(len));
+				pnl_project.get(len).getCheckBox().addItemListener(new ChckbxSelectProjectItemListener());
+				pnl_project.get(len).getLabelImage().addMouseListener(new LblProjectImageMouseListener());
+			}
 		}
 	}
 }

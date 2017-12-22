@@ -6,8 +6,15 @@ import javax.swing.JPanel;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.border.TitledBorder;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javax.swing.border.LineBorder;
 import java.awt.Color;
+import java.awt.Container;
+
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -16,6 +23,13 @@ import javax.swing.JPasswordField;
 import javax.swing.ImageIcon;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Date;
 
 public class Login {
 
@@ -36,6 +50,8 @@ public class Login {
 	private JPasswordField passwordFieldlogin;
 	private JPasswordField passwordFieldnew;
 	private JLabel lblimage;
+	private JSONArray users;
+	private JSONObject obj;
 
 	/**
 	 * Launch the application.
@@ -64,6 +80,30 @@ public class Login {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
+		
+		try {
+			StringBuilder sb = new StringBuilder();
+
+		    String line;
+		    BufferedReader br = new BufferedReader(new FileReader("/home/ivangarrera/Desktop/data.json"));
+		    while ((line = br.readLine()) != null) {
+		        sb.append(line);
+		    }
+			obj = new JSONObject(sb.toString());
+			users = obj.getJSONArray("users");
+			
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		frmLogin = new JFrame();
 		frmLogin.setTitle("Login");
 		frmLogin.setBounds(100, 100, 600, 300);
@@ -195,6 +235,7 @@ public class Login {
 		panel_new_user.add(textFieldnewuser, gbc_textFieldnewuser);
 		
 		buttonregister = new JButton("SIGN-UP");
+		buttonregister.addMouseListener(new ButtonregisterMouseListener());
 		GridBagConstraints gbc_buttonregister = new GridBagConstraints();
 		gbc_buttonregister.insets = new Insets(0, 0, 5, 5);
 		gbc_buttonregister.gridx = 1;
@@ -242,11 +283,43 @@ public class Login {
 		@Override
 		public void mouseClicked(MouseEvent mouse_event) {
 			try {
-				Profile window = new Profile();
-				window.frame.setVisible(true);
+				for (int i = 0; i < users.length(); i++) {
+					if (users.getJSONObject(i).getString("user").equals(textFieldusrlogin.getText())
+							&& users.getJSONObject(i).getString("password").equals(passwordFieldlogin.getText())) {
+						Profile window = new Profile();
+						window.frame.setVisible(true);
+						frmLogin.setVisible(false);
+						frmLogin.dispose();
+					}
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			} 
+		}
+	}
+	private class ButtonregisterMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			if (!textFieldnewname.getText().isEmpty() && !textFieldnewuser.getText().isEmpty() 
+					&& !passwordFieldnew.getText().isEmpty()) {
+				JSONObject user = new JSONObject();
+				try {
+					user.put("name", textFieldnewname.getText());
+					user.put("user", textFieldnewuser.getText());
+					user.put("password", passwordFieldnew.getText());
+					user.put("image_path", "../resources/user.png");
+					user.put("last_access", new Date());
+					users.put(user);
+					obj.put("users", users);
+					FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+					BufferedWriter outstream = new BufferedWriter(file);
+					outstream.write(obj.toString());
+					outstream.close();
+				} catch (JSONException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }

@@ -1,0 +1,26 @@
+{
+   "users":[
+      {
+         "name":"Ivan",
+         "user":"ivan",
+         "password":"password",
+         "image_path":"./image",
+         "last_access":"2000-01-01 00:00:00"
+      }
+   ],
+   "projects":[
+      {
+         "id":1,
+         "name":"My Project",
+         "image_path":"./project_image.jpg",
+         "created_at":"01/01/2000",
+         "manager":"Foo Bar",
+         "description":"description",
+         "members":[
+            "Member1",
+            "Member2",
+            "Member3"
+         ]
+      }
+   ]
+}

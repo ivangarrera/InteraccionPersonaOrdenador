@@ -22,6 +22,14 @@ import javax.swing.JScrollBar;
 import javax.swing.AbstractListModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
+import org.json.*;
 
 public class Profile {
 
@@ -48,6 +56,7 @@ public class Profile {
 	private JButton btn_delete;
 	private JSeparator separator;
 	private JLabel lbl_last_access;
+	private JSONArray projects;
 
 	/**
 	 * Create the application.
@@ -60,6 +69,30 @@ public class Profile {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
+		try {
+			StringBuilder sb = new StringBuilder();
+
+		    String line;
+		    BufferedReader br = new BufferedReader(new FileReader("/home/ivangarrera/Desktop/data.json"));
+		    while ((line = br.readLine()) != null) {
+		        sb.append(line);
+		    }
+			JSONObject obj = new JSONObject(sb.toString());
+			projects = obj.getJSONArray("projects");
+			
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 		frame = new JFrame();
 		frame.setBounds(100, 100, 750, 550);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -198,13 +231,24 @@ public class Profile {
 		
 		list_projects = new JList();
 		list_projects.addMouseListener(new List_projectsMouseListener());
+		ArrayList<String> values = new ArrayList<>();
+
+		for (int i = 0; i < projects.length(); i++) {
+			try {
+				values.add(projects.getJSONObject(i).getString("name"));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		list_projects.setModel(new AbstractListModel() {
-			String[] values = new String[] {"Project1", "Project2", "Project3", "Project4"};
+			
 			public int getSize() {
-				return values.length;
+				return values.size();
 			}
 			public Object getElementAt(int index) {
-				return values[index];
+				return values.get(index);
 			}
 		});
 		list_projects.setBackground(SystemColor.window);
@@ -285,11 +329,15 @@ public class Profile {
 	private class List_projectsMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent mouse_event) {
-			try {
-				Projects window = new Projects();
-				window.frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
+			if (mouse_event.getClickCount() == 2 && mouse_event.getButton() == MouseEvent.BUTTON1) {
+				try {
+					Projects window = new Projects();
+					window.frame.setVisible(true);
+					frame.setVisible(false);
+					frame.dispose();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

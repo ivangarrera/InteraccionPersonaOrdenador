@@ -366,6 +366,8 @@ public class Projects {
 				pnl_projects.add(pnl_project.get(len));
 				pnl_project.get(len).getCheckBox().addItemListener(new ChckbxSelectProjectItemListener());
 				pnl_project.get(len).getLabelImage().addMouseListener(new LblProjectImageMouseListener());
+				frame.repaint();
+				frame.revalidate();
 			}
 		}
 	}

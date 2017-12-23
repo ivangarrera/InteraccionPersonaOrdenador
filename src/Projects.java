@@ -9,6 +9,12 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.JTextField;
 
@@ -20,6 +26,11 @@ import java.awt.GridLayout;
 import java.awt.Image;
 
 import javax.swing.border.TitledBorder;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javax.swing.JList;
 import javax.swing.JTextPane;
 import javax.swing.AbstractListModel;
@@ -27,6 +38,7 @@ import javax.swing.Icon;
 import java.awt.BorderLayout;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Projects {
 
@@ -58,7 +70,11 @@ public class Projects {
 	private JList list;
 	private JPanel pnl_auxiliar;
 	private JButton btnEditProjectInfo;
-
+	private JSONArray projects;
+	private JSONObject obj;
+	
+	private Project current_proj;
+	
 	/**
 	 * Create the application.
 	 */
@@ -72,6 +88,29 @@ public class Projects {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+	
+		try {
+			StringBuilder sb = new StringBuilder();
+
+		    String line;
+		    BufferedReader br = new BufferedReader(new FileReader("/home/ivangarrera/Desktop/data.json"));
+		    while ((line = br.readLine()) != null) {
+		        sb.append(line);
+		    }
+			obj = new JSONObject(sb.toString());
+			projects = obj.getJSONArray("projects");
+			
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		frame = new JFrame();
 		frame.setBounds(0, 0, 1250, 700);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -186,6 +225,7 @@ public class Projects {
 		pnl_view_project.add(lbl_view_image, gbc_lbl_view_image);
 		
 		btnEditProjectInfo = new JButton("EDIT");
+		btnEditProjectInfo.addMouseListener(new BtnEditProjectInfoMouseListener());
 		GridBagConstraints gbc_btnEditProjectInfo = new GridBagConstraints();
 		gbc_btnEditProjectInfo.insets = new Insets(0, 0, 5, 5);
 		gbc_btnEditProjectInfo.gridx = 1;
@@ -296,11 +336,17 @@ public class Projects {
 		gbc_btnAddNewProject.gridy = 2;
 		frame.getContentPane().add(btnAddNewProject, gbc_btnAddNewProject);
 		
-		for (int i = 0; i < 9; i++) {
-			pnl_project.add(new MyProjectPanel());
+		for (int i = 0; i < projects.length(); i++) {
+			try {
+				pnl_project.add(new MyProjectPanel(new Project(projects.getJSONObject(i).getString("name"),
+						projects.getJSONObject(i).getString("image_path"), new Date().toString(), "default", "Description")));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			pnl_projects.add(pnl_project.get(i), "Project");
+			pnl_project.get(i).addMouseListener(new PnlProjectMouseListener());
 			pnl_project.get(i).getCheckBox().addItemListener(new ChckbxSelectProjectItemListener());
-			pnl_project.get(i).getLabelImage().addMouseListener(new LblProjectImageMouseListener());
 		}
 		
 	}
@@ -335,21 +381,35 @@ public class Projects {
 		}
 	}
 	
-	private class LblProjectImageMouseListener extends MouseAdapter {
+	private class PnlProjectMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent event) {
 			pnl_view_project.setVisible(true);
-			txt_view_name.setText("Project1");
-			txt_view_created.setText("01/01/2000");
-			textPane_description.setText("Little description");
-			txt_view_manager.setText("Foo Bar");
+			txt_view_name.setText(((MyProjectPanel) event.getSource()).associated_project.getName());
+			txt_view_created.setText(((MyProjectPanel) event.getSource()).associated_project.getCreated_at());
+			textPane_description.setText(((MyProjectPanel) event.getSource()).associated_project.getDescription());
+			txt_view_manager.setText(((MyProjectPanel) event.getSource()).associated_project.getManager());
+			current_proj = ((MyProjectPanel) event.getSource()).associated_project;
 		}
 	}
+	
 	private class Lbl_DeleteMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent mouse_event) {
 			for (int i = 0; i < panels_selected.size(); ) {
 				MyProjectPanel my_panel = panels_selected.get(i);
+				projects.remove(i);
+				// Save changes on disk
+				try {
+					obj.put("projects", projects);
+					FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+					BufferedWriter outstream = new BufferedWriter(file);
+					outstream.write(obj.toString());
+					outstream.close();
+				} catch (JSONException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				my_panel.getCheckBox().setSelected(false);
 				pnl_projects.remove(my_panel);
 				pnl_project.remove(my_panel);
@@ -362,13 +422,45 @@ public class Projects {
 		public void mouseClicked(MouseEvent arg0) {
 			int len = pnl_project.size();
 			if (len < 9) {
-				pnl_project.add(new MyProjectPanel());
+				JSONObject proj = new JSONObject();
+				try {
+					proj.put("name", "Default");
+					proj.put("id", pnl_project.size() + 1);
+					proj.put("image_path", "/resources/project.png");
+					proj.put("created_at", new Date());
+					proj.put("manager", "Default");
+					proj.put("description", "empty");
+					projects.put(proj);
+					obj.put("projects", projects);
+					FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+					BufferedWriter outstream = new BufferedWriter(file);
+					outstream.write(obj.toString());
+					outstream.close();
+				} catch (JSONException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				try {
+					Project p = new Project(proj.getString("name"), proj.getString("image_path"), proj.getString("created_at"), 
+							proj.getString("manager"), proj.getString("description"));
+					pnl_project.add(new MyProjectPanel(p));
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				pnl_projects.add(pnl_project.get(len));
 				pnl_project.get(len).getCheckBox().addItemListener(new ChckbxSelectProjectItemListener());
-				pnl_project.get(len).getLabelImage().addMouseListener(new LblProjectImageMouseListener());
+				pnl_project.get(len).addMouseListener(new PnlProjectMouseListener());
 				frame.repaint();
 				frame.revalidate();
 			}
+		}
+	}
+	private class BtnEditProjectInfoMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			
 		}
 	}
 }

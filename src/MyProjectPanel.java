@@ -24,12 +24,15 @@ import java.awt.event.MouseEvent;
 public class MyProjectPanel extends JPanel{
 	private JLabel lblProjectImage;
 	private JLabel lblProjectName;
+	public Project associated_project;
 	private JCheckBox chckbxSelectProject;
-
+	
 	/**
 	 * Create the application.
 	 */
-	public MyProjectPanel() {
+	public MyProjectPanel(Project project) {
+		associated_project = project;
+		
 		setBorder(null);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{1, 247, 0};
@@ -42,7 +45,7 @@ public class MyProjectPanel extends JPanel{
 		ImageIcon imageIcon = new ImageIcon(Projects.class.getResource("/resources/user.png")); 
 		Icon icon = new ImageIcon(imageIcon.getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT));
 		lblProjectImage.setIcon(icon);
-		lblProjectImage.setIcon(new ImageIcon(MyProjectPanel.class.getResource("/resources/project.png")));
+		lblProjectImage.setIcon(new ImageIcon(MyProjectPanel.class.getResource(associated_project.getImage_path())));
 		GridBagConstraints gbc_lblProjectImage = new GridBagConstraints();
 		gbc_lblProjectImage.fill = GridBagConstraints.BOTH;
 		gbc_lblProjectImage.insets = new Insets(0, 0, 5, 0);
@@ -58,7 +61,7 @@ public class MyProjectPanel extends JPanel{
 		gbc_chckbxSelectProject.gridy = 2;
 		add(chckbxSelectProject, gbc_chckbxSelectProject);
 		
-		lblProjectName = new JLabel("Project Name");
+		lblProjectName = new JLabel(associated_project.getName());
 		lblProjectName.setHorizontalAlignment(SwingConstants.CENTER);
 		GridBagConstraints gbc_lblProjectName = new GridBagConstraints();
 		gbc_lblProjectName.fill = GridBagConstraints.BOTH;

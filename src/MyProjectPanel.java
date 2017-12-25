@@ -42,10 +42,10 @@ public class MyProjectPanel extends JPanel{
 		setLayout(gridBagLayout);
 		
 		lblProjectImage = new JLabel("");
-		ImageIcon imageIcon = new ImageIcon(Projects.class.getResource("/resources/user.png")); 
-		Icon icon = new ImageIcon(imageIcon.getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT));
-		lblProjectImage.setIcon(icon);
-		lblProjectImage.setIcon(new ImageIcon(MyProjectPanel.class.getResource(associated_project.getImage_path())));
+		if (associated_project.getImage_path().contains("resources/"))
+			lblProjectImage.setIcon(new ImageIcon(MyProjectPanel.class.getResource(associated_project.getImage_path())));
+		else
+			lblProjectImage.setIcon(new ImageIcon(associated_project.getImage_path()));
 		GridBagConstraints gbc_lblProjectImage = new GridBagConstraints();
 		gbc_lblProjectImage.fill = GridBagConstraints.BOTH;
 		gbc_lblProjectImage.insets = new Insets(0, 0, 5, 0);

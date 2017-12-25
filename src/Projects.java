@@ -9,6 +9,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.ImageFilter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -19,13 +20,17 @@ import java.io.IOException;
 import javax.swing.JTextField;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import java.awt.GridLayout;
 import java.awt.Image;
 
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -217,7 +222,11 @@ public class Projects {
 		pnl_view_project.setLayout(gbl_pnl_view_project);
 		
 		lbl_view_image = new JLabel("");
-		lbl_view_image.setIcon(new ImageIcon(Projects.class.getResource("/resources/user.png")));
+		lbl_view_image.addMouseListener(new Lbl_view_imageMouseListener());
+		if (current_proj != null)
+			lbl_view_image.setIcon(new ImageIcon(current_proj.getImage_path()));
+		else 
+			lbl_view_image.setIcon(new ImageIcon(Projects.class.getResource("/resources/user.png")));
 		GridBagConstraints gbc_lbl_view_image = new GridBagConstraints();
 		gbc_lbl_view_image.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl_view_image.gridx = 1;
@@ -339,7 +348,10 @@ public class Projects {
 		for (int i = 0; i < projects.length(); i++) {
 			try {
 				pnl_project.add(new MyProjectPanel(new Project(projects.getJSONObject(i).getString("name"),
-						projects.getJSONObject(i).getString("image_path"), new Date().toString(), "default", "Description")));
+						projects.getJSONObject(i).getString("image_path"), 
+						projects.getJSONObject(i).getString("created_at"), 
+						projects.getJSONObject(i).getString("manager"), 
+						projects.getJSONObject(i).getString("description"))));
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -385,11 +397,16 @@ public class Projects {
 		@Override
 		public void mouseClicked(MouseEvent event) {
 			pnl_view_project.setVisible(true);
+			
+			current_proj = ((MyProjectPanel) event.getSource()).associated_project;
+			if (current_proj.getImage_path().contains("resources/"))
+				lbl_view_image.setIcon(new ImageIcon(MyProjectPanel.class.getResource(current_proj.getImage_path())));
+			else
+				lbl_view_image.setIcon(new ImageIcon(current_proj.getImage_path()));
 			txt_view_name.setText(((MyProjectPanel) event.getSource()).associated_project.getName());
 			txt_view_created.setText(((MyProjectPanel) event.getSource()).associated_project.getCreated_at());
 			textPane_description.setText(((MyProjectPanel) event.getSource()).associated_project.getDescription());
 			txt_view_manager.setText(((MyProjectPanel) event.getSource()).associated_project.getManager());
-			current_proj = ((MyProjectPanel) event.getSource()).associated_project;
 		}
 	}
 	
@@ -427,7 +444,7 @@ public class Projects {
 					proj.put("name", "Default");
 					proj.put("id", pnl_project.size() + 1);
 					proj.put("image_path", "/resources/project.png");
-					proj.put("created_at", new Date());
+					proj.put("created_at", new Date().toString());
 					proj.put("manager", "Default");
 					proj.put("description", "empty");
 					projects.put(proj);
@@ -460,7 +477,56 @@ public class Projects {
 	private class BtnEditProjectInfoMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent arg0) {
+			if (!txt_view_name.getText().equals(""))
+				current_proj.setName(txt_view_name.getText());
+			if (!txt_view_manager.getText().equals(""))
+				current_proj.setManager(txt_view_manager.getText());
+			if (!txt_view_created.getText().equals(""))
+				current_proj.setCreated_at(txt_view_created.getText());
+			if (!textPane_description.getText().equals(""))
+				current_proj.setDescription(textPane_description.getText());
 			
+			try {
+				JSONObject proj = projects.getJSONObject(0);
+				proj.put("name", current_proj.getName());
+				proj.put("created_at", current_proj.getCreated_at());
+				proj.put("manager", current_proj.getManager());
+				proj.put("description", current_proj.getDescription());
+				FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+				BufferedWriter outstream = new BufferedWriter(file);
+				outstream.write(obj.toString());
+				outstream.close();
+			} catch (JSONException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			frame.repaint();
+			frame.revalidate();
+		}
+	}
+	private class Lbl_view_imageMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			try {
+			   JFileChooser file_chooser = new JFileChooser();
+			   file_chooser.showOpenDialog(panel);
+			   FileFilter imageFilter = new FileNameExtensionFilter("Image Files", ImageIO.getReaderFileSuffixes());
+			   file_chooser.setFileFilter(imageFilter);
+			   String path = file_chooser.getSelectedFile().getAbsolutePath();
+			   if (path != null) {
+				   current_proj.setImage_path(path);
+				   JSONObject proj = projects.getJSONObject(0);
+				   proj.put("image_path", current_proj.getImage_path());
+				   FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+				   BufferedWriter outstream = new BufferedWriter(file);
+				   outstream.write(obj.toString());
+				   outstream.close();
+			   }
+			} catch(Exception ex){
+			     ex.printStackTrace();
+			}
+			frame.repaint();
+			frame.revalidate();
 		}
 	}
 }

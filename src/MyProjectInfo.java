@@ -9,6 +9,8 @@ import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -39,7 +41,7 @@ import java.awt.Color;
 
 public class MyProjectInfo {
 
-	private JFrame frame;
+	public JFrame frame;
 	private JPanel pnl_task;
 	private JLabel lbl_list;
 	private JLabel lbl_calendar;
@@ -649,6 +651,7 @@ public class MyProjectInfo {
 		if (btnChat == null) {
 			btnChat = new JLabel("");
 			btnChat.setIcon(new ImageIcon(MyProjectInfo.class.getResource("/resources/icon_chat.png")));
+			btnChat.addMouseListener(new BtnChatListener());
 		}
 		return btnChat;
 	}
@@ -666,4 +669,13 @@ public class MyProjectInfo {
 		}
 		return lblNewLabel;
 	}
+
+	private class BtnChatListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent event) {
+			Chat window = new Chat();
+			window.frame.setVisible(true);
+		}
+	}
+
 }

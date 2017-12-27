@@ -223,10 +223,19 @@ public class Projects {
 		
 		lbl_view_image = new JLabel("");
 		lbl_view_image.addMouseListener(new Lbl_view_imageMouseListener());
-		if (current_proj != null)
-			lbl_view_image.setIcon(new ImageIcon(current_proj.getImage_path()));
-		else 
-			lbl_view_image.setIcon(new ImageIcon(Projects.class.getResource("/resources/user.png")));
+		if (current_proj != null) {
+			ImageIcon init_icon = new ImageIcon(current_proj.getImage_path());
+			Image img = init_icon.getImage();
+			Image scaled = img.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
+			ImageIcon scaled_icon = new ImageIcon(scaled);
+			lbl_view_image.setIcon(scaled_icon);
+		} else { 
+			ImageIcon init_icon = new ImageIcon(Projects.class.getResource("/resources/user.png"));
+			Image img = init_icon.getImage();
+			Image scaled = img.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
+			ImageIcon scaled_icon = new ImageIcon(scaled);
+			lbl_view_image.setIcon(scaled_icon);
+		}
 		GridBagConstraints gbc_lbl_view_image = new GridBagConstraints();
 		gbc_lbl_view_image.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl_view_image.gridx = 1;
@@ -399,10 +408,20 @@ public class Projects {
 			pnl_view_project.setVisible(true);
 			
 			current_proj = ((MyProjectPanel) event.getSource()).associated_project;
-			if (current_proj.getImage_path().contains("resources/"))
-				lbl_view_image.setIcon(new ImageIcon(MyProjectPanel.class.getResource(current_proj.getImage_path())));
-			else
-				lbl_view_image.setIcon(new ImageIcon(current_proj.getImage_path()));
+			if (current_proj.getImage_path().contains("resources/")) {
+				ImageIcon init_icon = new ImageIcon(MyProjectPanel.class.getResource(current_proj.getImage_path()));
+				Image img = init_icon.getImage();
+				Image scaled = img.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
+				ImageIcon scaled_icon = new ImageIcon(scaled);
+				lbl_view_image.setIcon(scaled_icon);
+			}
+			else {
+				ImageIcon init_icon = new ImageIcon(current_proj.getImage_path());
+				Image img = init_icon.getImage();
+				Image scaled = img.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
+				ImageIcon scaled_icon = new ImageIcon(scaled);
+				lbl_view_image.setIcon(scaled_icon);
+			}
 			txt_view_name.setText(((MyProjectPanel) event.getSource()).associated_project.getName());
 			txt_view_created.setText(((MyProjectPanel) event.getSource()).associated_project.getCreated_at());
 			textPane_description.setText(((MyProjectPanel) event.getSource()).associated_project.getDescription());

@@ -2,6 +2,8 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import java.awt.GridBagLayout;
+import java.awt.Image;
+
 import javax.swing.JPanel;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -23,11 +25,14 @@ import javax.swing.AbstractListModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.json.*;
 
@@ -57,11 +62,55 @@ public class Profile {
 	private JSeparator separator;
 	private JLabel lbl_last_access;
 	private JSONArray projects;
+	private JSONObject obj;
+	private JSONArray users;
+	
+	private User user_registered;
 
 	/**
 	 * Create the application.
 	 */
-	public Profile() {
+	public Profile(String user) {
+		try {
+			StringBuilder sb = new StringBuilder();
+
+		    String line;
+		    BufferedReader br = new BufferedReader(new FileReader("/home/ivangarrera/Desktop/data.json"));
+		    while ((line = br.readLine()) != null) {
+		        sb.append(line);
+		    }
+			obj = new JSONObject(sb.toString());
+			users = obj.getJSONArray("users");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		for (int i = 0; i < users.length(); i++) {
+			try {
+				if (users.getJSONObject(i).getString("user").equals(user)) {
+					String name = users.getJSONObject(i).getString("name");
+					String image_path = users.getJSONObject(i).getString("image_path");
+					String last_access = users.getJSONObject(i).getString("last_access");
+					String rol = users.getJSONObject(i).getString("rol");
+					user_registered = new User(last_access, user, name, image_path, rol);
+					
+					// Save last access on disk
+					users.getJSONObject(i).put("last_access", new Date().toString());
+					obj.put("users", users);
+					FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+					BufferedWriter outstream = new BufferedWriter(file);
+					outstream.write(obj.toString());
+					outstream.close();
+					break;
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		initialize();
 	}
 
@@ -112,7 +161,20 @@ public class Profile {
 		frame.getContentPane().add(pnl_image, gbc_pnl_image);
 		
 		lbl_image = new JLabel("");
-		lbl_image.setIcon(new ImageIcon(Profile.class.getResource("/resources/user.png")));
+		if (user_registered.getImage_path().contains("resources/")) {
+			ImageIcon icon = new ImageIcon(MyProjectPanel.class.getResource(user_registered.getImage_path()));
+			Image img = icon.getImage();
+			Image scaled = img.getScaledInstance(225, 225, java.awt.Image.SCALE_SMOOTH);
+			ImageIcon scaled_icon = new ImageIcon(scaled);
+			lbl_image.setIcon(scaled_icon);
+		} else {
+			ImageIcon init_icon = new ImageIcon(user_registered.getImage_path());
+			Image img = init_icon.getImage();
+			Image scaled = img.getScaledInstance(225, 225, java.awt.Image.SCALE_SMOOTH);
+			ImageIcon scaled_icon = new ImageIcon(scaled);
+			lbl_image.setIcon(scaled_icon);
+		}
+		
 		pnl_image.add(lbl_image);
 		
 		pnl_user_data = new JPanel();
@@ -213,13 +275,20 @@ public class Profile {
 		pnl_user_other.add(lbl_rol, gbc_lbl_rol);
 		
 		comboBox_rol = new JComboBox();
-		comboBox_rol.setModel(new DefaultComboBoxModel(new String[] {"Manager", "Employee", "Other"}));
+		comboBox_rol.setModel(new DefaultComboBoxModel(new String[] {"manager", "employee", "other"}));
 		GridBagConstraints gbc_comboBox_rol = new GridBagConstraints();
 		gbc_comboBox_rol.insets = new Insets(0, 0, 5, 0);
 		gbc_comboBox_rol.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboBox_rol.gridx = 1;
 		gbc_comboBox_rol.gridy = 0;
+		for (int i = 0; i < comboBox_rol.getComponentCount(); i++) {
+			if (comboBox_rol.getItemAt(i).equals(user_registered.getRol())) {
+				comboBox_rol.setSelectedIndex(i);
+			}
+		}
+		
 		pnl_user_other.add(comboBox_rol, gbc_comboBox_rol);
+		
 		
 		lbl_projects = new JLabel("Projects:");
 		GridBagConstraints gbc_lbl_projects = new GridBagConstraints();
@@ -317,7 +386,7 @@ public class Profile {
 		gbc_separator.gridy = 3;
 		frame.getContentPane().add(separator, gbc_separator);
 		
-		lbl_last_access = new JLabel("Last access: YYYY-MM-DD hh:mm:ss");
+		lbl_last_access = new JLabel("Last access: " + user_registered.getLast_access());
 		GridBagConstraints gbc_lbl_last_access = new GridBagConstraints();
 		gbc_lbl_last_access.anchor = GridBagConstraints.EAST;
 		gbc_lbl_last_access.insets = new Insets(0, 0, 0, 5);

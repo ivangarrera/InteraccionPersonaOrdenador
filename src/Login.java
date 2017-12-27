@@ -286,7 +286,7 @@ public class Login {
 				for (int i = 0; i < users.length(); i++) {
 					if (users.getJSONObject(i).getString("user").equals(textFieldusrlogin.getText())
 							&& users.getJSONObject(i).getString("password").equals(passwordFieldlogin.getText())) {
-						Profile window = new Profile();
+						Profile window = new Profile(textFieldusrlogin.getText());
 						window.frame.setVisible(true);
 						frmLogin.setVisible(false);
 						frmLogin.dispose();
@@ -309,6 +309,7 @@ public class Login {
 					user.put("password", passwordFieldnew.getText());
 					user.put("image_path", "../resources/user.png");
 					user.put("last_access", new Date());
+					user.put("rol", "employee");
 					users.put(user);
 					obj.put("users", users);
 					FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");

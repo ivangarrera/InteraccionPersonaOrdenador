@@ -16,7 +16,7 @@ import java.awt.event.MouseEvent;
 
 public class Chat {
 
-	private JFrame frame;
+	public JFrame frame;
 	private JLabel icon_send;
 	private JLabel icon_clip;
 	private JLabel icon_chat;
@@ -25,22 +25,6 @@ public class Chat {
 	private JLabel lblTasks;
 	private JScrollPane scrollPane;
 	private JTextArea textArea;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Chat window = new Chat();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the application.
@@ -55,7 +39,6 @@ public class Chat {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{37, 23, 301, 0, 0};
 		gridBagLayout.rowHeights = new int[]{0, 204, 44, 0};

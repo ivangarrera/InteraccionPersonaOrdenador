@@ -90,5 +90,21 @@
          "user":"admin",
          "rol":"manager"
       }
-   ]
+   ],
+	"tasks":[
+		{
+			"name":"TaskName",
+			"manager":"ManagerName",
+			"priority":"Low",
+			"state":"To Do",
+			"start":"Wed Dec 27 11:44:13 CET 2017",
+			"end":"Wed Dec 27 11:44:13 CET 2018",
+			"resources":[
+				{
+					"image_path": "/dev/null"
+				}
+			], 
+			"anotation": "none"
+		}
+	]
 }

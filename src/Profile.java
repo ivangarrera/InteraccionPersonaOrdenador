@@ -1,5 +1,3 @@
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import java.awt.GridBagLayout;
 import java.awt.Image;
@@ -20,7 +18,6 @@ import javax.swing.JSeparator;
 import java.awt.Color;
 import java.awt.SystemColor;
 import javax.swing.UIManager;
-import javax.swing.JScrollBar;
 import javax.swing.AbstractListModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -30,7 +27,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -313,9 +309,11 @@ public class Profile {
 		
 		list_projects.setModel(new AbstractListModel() {
 			
+			@Override
 			public int getSize() {
 				return values.size();
 			}
+			@Override
 			public Object getElementAt(int index) {
 				return values.get(index);
 			}
@@ -339,9 +337,11 @@ public class Profile {
 		list_skills = new JList();
 		list_skills.setModel(new AbstractListModel() {
 			String[] values = new String[] {"Skill1", "Skill2", "Skill3", "Skill4"};
+			@Override
 			public int getSize() {
 				return values.length;
 			}
+			@Override
 			public Object getElementAt(int index) {
 				return values[index];
 			}
@@ -357,7 +357,8 @@ public class Profile {
 		btn_modify = new JButton("Modify");
 		GridBagConstraints gbc_btn_modify = new GridBagConstraints();
 		gbc_btn_modify.gridx = 1;
-		gbc_btn_modify.gridy = 3;
+		gbc_btn_modify.gridy = 3;		
+		btn_modify.addMouseListener(new Btn_modifyMouseListener());
 		pnl_user_other.add(btn_modify, gbc_btn_modify);
 		
 		lblNewLabel = new JLabel("Don't want to use the app anymore? ");
@@ -410,4 +411,32 @@ public class Profile {
 			}
 		}
 	}
+	private class Btn_modifyMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			System.out.println("hh");
+			JSONObject user_to_change = null;
+			for (int i = 0; i < users.length(); i++) {
+				try {
+					if (users.getJSONObject(i).getString("user").equals(user_registered.getUser())) {
+						user_to_change = users.getJSONObject(i);
+						break;
+					}
+				} catch (JSONException ex) {
+					ex.printStackTrace();
+				}
+			}
+			try {
+				user_to_change.put("rol", comboBox_rol.getSelectedItem().toString());
+				obj.put("users", users);
+				FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+				BufferedWriter outstream = new BufferedWriter(file);
+				outstream.write(obj.toString());
+				outstream.close();
+			} catch (JSONException | IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
 }

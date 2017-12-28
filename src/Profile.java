@@ -1,24 +1,11 @@
-import javax.swing.JFrame;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
-
-import javax.swing.JPanel;
-import java.awt.GridBagConstraints;
 import java.awt.Insets;
-import javax.swing.JLabel;
-import javax.swing.ImageIcon;
-import javax.swing.border.TitledBorder;
-import javax.swing.JTextField;
-import javax.swing.JPasswordField;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JList;
-import javax.swing.JButton;
-import javax.swing.JSeparator;
-import java.awt.Color;
 import java.awt.SystemColor;
-import javax.swing.UIManager;
-import javax.swing.AbstractListModel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -30,7 +17,24 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.json.*;
+import javax.swing.AbstractListModel;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Profile {
 
@@ -46,12 +50,14 @@ public class Profile {
 	private JTextField textField_user;
 	private JPasswordField passwordField_password;
 	private JLabel lbl_rol;
+	@SuppressWarnings("rawtypes")
 	private JComboBox comboBox_rol;
 	private JLabel lbl_projects;
+	@SuppressWarnings("rawtypes")
 	private JList list_projects;
 	private JLabel lbl_skills;
+	@SuppressWarnings("rawtypes")
 	private JList list_skills;
-	private JButton btn_modify;
 	private JButton btn_edit;
 	private JLabel lblNewLabel;
 	private JButton btn_delete;
@@ -62,6 +68,9 @@ public class Profile {
 	private JSONArray users;
 	
 	private User user_registered;
+	private JSONObject current_user_json;
+	private JButton btn_modify;
+	private JLabel lbl_status_info;
 
 	/**
 	 * Create the application.
@@ -96,6 +105,7 @@ public class Profile {
 					BufferedWriter outstream = new BufferedWriter(file);
 					outstream.write(obj.toString());
 					outstream.close();
+					current_user_json = users.getJSONObject(i);
 					break;
 				}
 			} catch (JSONException e) {
@@ -113,6 +123,7 @@ public class Profile {
 	/**
 	 * Initialize the contents of the frame.
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes", "serial" })
 	private void initialize() {
 		
 		try {
@@ -143,9 +154,9 @@ public class Profile {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{261, 176, 0};
-		gridBagLayout.rowHeights = new int[]{163, 0, 0, 0, 0, 0};
+		gridBagLayout.rowHeights = new int[]{163, 0, 0, 0, 0, 0, 0};
 		gridBagLayout.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		frame.getContentPane().setLayout(gridBagLayout);
 		
 		pnl_image = new JPanel();
@@ -239,6 +250,7 @@ public class Profile {
 		pnl_user_data.add(passwordField_password, gbc_passwordField_password);
 		
 		btn_edit = new JButton("Edit");
+		btn_edit.addMouseListener(new Btn_editMouseListener());
 		GridBagConstraints gbc_btn_edit = new GridBagConstraints();
 		gbc_btn_edit.insets = new Insets(0, 0, 0, 5);
 		gbc_btn_edit.gridx = 1;
@@ -257,9 +269,9 @@ public class Profile {
 		frame.getContentPane().add(pnl_user_other, gbc_pnl_user_other);
 		GridBagLayout gbl_pnl_user_other = new GridBagLayout();
 		gbl_pnl_user_other.columnWidths = new int[]{109, 133, 0};
-		gbl_pnl_user_other.rowHeights = new int[]{0, 142, 129, 0, 0};
+		gbl_pnl_user_other.rowHeights = new int[]{0, 142, 129, 0, 0, 0, 0};
 		gbl_pnl_user_other.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
-		gbl_pnl_user_other.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_pnl_user_other.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		pnl_user_other.setLayout(gbl_pnl_user_other);
 		
 		lbl_rol = new JLabel("Rol:");
@@ -277,7 +289,7 @@ public class Profile {
 		gbc_comboBox_rol.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboBox_rol.gridx = 1;
 		gbc_comboBox_rol.gridy = 0;
-		for (int i = 0; i < comboBox_rol.getComponentCount(); i++) {
+		for (int i = 0; i <= comboBox_rol.getComponentCount(); i++) {
 			if (comboBox_rol.getItemAt(i).equals(user_registered.getRol())) {
 				comboBox_rol.setSelectedIndex(i);
 			}
@@ -355,10 +367,10 @@ public class Profile {
 		pnl_user_other.add(list_skills, gbc_list_skills);
 		
 		btn_modify = new JButton("Modify");
+		btn_modify.addMouseListener(new Btn_modifyMouseListener());
 		GridBagConstraints gbc_btn_modify = new GridBagConstraints();
 		gbc_btn_modify.gridx = 1;
-		gbc_btn_modify.gridy = 3;		
-		btn_modify.addMouseListener(new Btn_modifyMouseListener());
+		gbc_btn_modify.gridy = 5;
 		pnl_user_other.add(btn_modify, gbc_btn_modify);
 		
 		lblNewLabel = new JLabel("Don't want to use the app anymore? ");
@@ -389,11 +401,18 @@ public class Profile {
 		
 		lbl_last_access = new JLabel("Last access: " + user_registered.getLast_access());
 		GridBagConstraints gbc_lbl_last_access = new GridBagConstraints();
+		gbc_lbl_last_access.insets = new Insets(0, 0, 5, 0);
 		gbc_lbl_last_access.anchor = GridBagConstraints.EAST;
-		gbc_lbl_last_access.insets = new Insets(0, 0, 0, 5);
 		gbc_lbl_last_access.gridx = 1;
 		gbc_lbl_last_access.gridy = 4;
 		frame.getContentPane().add(lbl_last_access, gbc_lbl_last_access);
+		
+		lbl_status_info = new JLabel("");
+		GridBagConstraints gbc_lbl_status_info = new GridBagConstraints();
+		gbc_lbl_status_info.insets = new Insets(0, 0, 0, 5);
+		gbc_lbl_status_info.gridx = 0;
+		gbc_lbl_status_info.gridy = 4;
+		frame.getContentPane().add(lbl_status_info, gbc_lbl_status_info);
 	}
 
 	private class List_projectsMouseListener extends MouseAdapter {
@@ -411,30 +430,122 @@ public class Profile {
 			}
 		}
 	}
+	
 	private class Btn_modifyMouseListener extends MouseAdapter {
 		@Override
-		public void mouseClicked(MouseEvent e) {
-			System.out.println("hh");
-			JSONObject user_to_change = null;
-			for (int i = 0; i < users.length(); i++) {
-				try {
-					if (users.getJSONObject(i).getString("user").equals(user_registered.getUser())) {
-						user_to_change = users.getJSONObject(i);
-						break;
-					}
-				} catch (JSONException ex) {
-					ex.printStackTrace();
-				}
-			}
+		public void mouseClicked(MouseEvent arg0) {			
 			try {
-				user_to_change.put("rol", comboBox_rol.getSelectedItem().toString());
+				current_user_json.put("rol", comboBox_rol.getSelectedItem().toString());
 				obj.put("users", users);
 				FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
 				BufferedWriter outstream = new BufferedWriter(file);
 				outstream.write(obj.toString());
 				outstream.close();
+				lbl_status_info.setForeground(Color.GREEN);
+				lbl_status_info.setText("User has been modified.");
+				ActionListener taskPerformer = new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						lbl_status_info.setText("");
+					}
+				};
+				javax.swing.Timer timer = new javax.swing.Timer(2500, taskPerformer);
+				timer.setRepeats(false);
+				timer.start();
 			} catch (JSONException | IOException ex) {
+				lbl_status_info.setForeground(Color.RED);
+				lbl_status_info.setText("User hasn't been modified.");
+				ActionListener taskPerformer = new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						lbl_status_info.setText("");
+					}
+				};
+				javax.swing.Timer timer = new javax.swing.Timer(2500, taskPerformer);
+				timer.setRepeats(false);
+				timer.start();
 				ex.printStackTrace();
+				ex.printStackTrace();
+			}
+		}
+	}
+	
+	private class Btn_editMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// Modify name
+			if (!textField_name.getText().isEmpty()) {
+				try {
+					current_user_json.put("name", textField_name.getText());
+				} catch (JSONException e1) {
+					e1.printStackTrace();
+				}
+			}
+			// Modify user
+			if (!textField_user.getText().isEmpty()) {
+				try {
+					current_user_json.put("user", textField_user.getText());
+				} catch (JSONException e1) {
+					e1.printStackTrace();
+				}
+			}
+			// Modify password
+			if (!passwordField_password.getText().isEmpty()) {
+				try {
+					current_user_json.put("password", passwordField_password.getText());
+				} catch (JSONException e1) {
+					e1.printStackTrace();
+				}
+			}
+			// Write in external JSON file.
+			if (!textField_name.getText().isEmpty() || !textField_user.getText().isEmpty() 
+					|| !passwordField_password.getText().isEmpty()) {
+				try {
+					obj.put("users", users);
+					FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+					BufferedWriter outstream = new BufferedWriter(file);
+					outstream.write(obj.toString());
+					outstream.close();
+					lbl_status_info.setForeground(Color.GREEN);
+					lbl_status_info.setText("User has been modified.");
+					ActionListener taskPerformer = new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							lbl_status_info.setText("");
+						}
+					};
+					javax.swing.Timer timer = new javax.swing.Timer(2500, taskPerformer);
+					timer.setRepeats(false);
+					timer.start();
+					textField_name.setText("");
+					textField_user.setText("");
+					passwordField_password.setText("");
+				} catch (JSONException | IOException ex) {
+					lbl_status_info.setForeground(Color.RED);
+					lbl_status_info.setText("User hasn't been modified.");
+					ActionListener taskPerformer = new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							lbl_status_info.setText("");
+						}
+					};
+					javax.swing.Timer timer = new javax.swing.Timer(2500, taskPerformer);
+					timer.setRepeats(false);
+					timer.start();
+					ex.printStackTrace();
+				}
+			} else {
+				lbl_status_info.setForeground(Color.RED);
+				lbl_status_info.setText("At least one field must be filled.");
+				ActionListener taskPerformer = new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						lbl_status_info.setText("");
+					}
+				};
+				javax.swing.Timer timer = new javax.swing.Timer(2500, taskPerformer);
+				timer.setRepeats(false);
+				timer.start();
 			}
 		}
 	}

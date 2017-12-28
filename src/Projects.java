@@ -1,33 +1,35 @@
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import java.awt.GridBagLayout;
-import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.ImageFilter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.ThreadLocalRandom;
 
-import javax.swing.JTextField;
-
+import javax.imageio.ImageIO;
+import javax.swing.AbstractListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.imageio.ImageIO;
-import javax.swing.AbstractButton;
-import javax.swing.ImageIcon;
-import java.awt.GridLayout;
-import java.awt.Image;
-
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -35,15 +37,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import javax.swing.JList;
-import javax.swing.JTextPane;
-import javax.swing.AbstractListModel;
-import javax.swing.Icon;
-import java.awt.BorderLayout;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 public class Projects {
 
@@ -77,6 +70,7 @@ public class Projects {
 	private JButton btnEditProjectInfo;
 	private JSONArray projects;
 	private JSONObject obj;
+	private String new_path;
 	
 	private Project current_proj;
 	
@@ -253,9 +247,11 @@ public class Projects {
 		list = new JList();
 		list.setModel(new AbstractListModel() {
 			String[] values = new String[] {"Item1", "Item2", "Item3", "Item4"};
+			@Override
 			public int getSize() {
 				return values.length;
 			}
+			@Override
 			public Object getElementAt(int index) {
 				return values[index];
 			}
@@ -373,6 +369,7 @@ public class Projects {
 	}
 	
 	private class ChckbxSelectProjectItemListener implements ItemListener {
+		@Override
 		public void itemStateChanged(ItemEvent arg0) {
 			panels_selected.clear();
 			// Obtain the selected panels.
@@ -426,6 +423,8 @@ public class Projects {
 			txt_view_created.setText(((MyProjectPanel) event.getSource()).associated_project.getCreated_at());
 			textPane_description.setText(((MyProjectPanel) event.getSource()).associated_project.getDescription());
 			txt_view_manager.setText(((MyProjectPanel) event.getSource()).associated_project.getManager());
+			frame.repaint();
+			frame.revalidate();
 		}
 	}
 	
@@ -506,11 +505,18 @@ public class Projects {
 				current_proj.setDescription(textPane_description.getText());
 			
 			try {
-				JSONObject proj = projects.getJSONObject(0);
+				JSONObject proj = projects.getJSONObject(ThreadLocalRandom.current().nextInt(0, projects.length() + 1));
 				proj.put("name", current_proj.getName());
 				proj.put("created_at", current_proj.getCreated_at());
 				proj.put("manager", current_proj.getManager());
 				proj.put("description", current_proj.getDescription());
+				// If image has been modified
+				if (new_path != null) {
+					current_proj.setImage_path(new_path);
+					proj.put("image_path", current_proj.getImage_path());
+					new_path = null;
+				}
+				
 				FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
 				BufferedWriter outstream = new BufferedWriter(file);
 				outstream.write(obj.toString());
@@ -526,26 +532,12 @@ public class Projects {
 	private class Lbl_view_imageMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			try {
-			   JFileChooser file_chooser = new JFileChooser();
-			   file_chooser.showOpenDialog(panel);
-			   FileFilter imageFilter = new FileNameExtensionFilter("Image Files", ImageIO.getReaderFileSuffixes());
-			   file_chooser.setFileFilter(imageFilter);
-			   String path = file_chooser.getSelectedFile().getAbsolutePath();
-			   if (path != null) {
-				   current_proj.setImage_path(path);
-				   JSONObject proj = projects.getJSONObject(0);
-				   proj.put("image_path", current_proj.getImage_path());
-				   FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
-				   BufferedWriter outstream = new BufferedWriter(file);
-				   outstream.write(obj.toString());
-				   outstream.close();
-			   }
-			} catch(Exception ex){
-			     ex.printStackTrace();
-			}
-			frame.repaint();
-			frame.revalidate();
+			
+		   JFileChooser file_chooser = new JFileChooser();
+		   file_chooser.showOpenDialog(panel);
+		   FileFilter imageFilter = new FileNameExtensionFilter("Image Files", ImageIO.getReaderFileSuffixes());
+		   file_chooser.setFileFilter(imageFilter);
+		   new_path = file_chooser.getSelectedFile().getAbsolutePath();
 		}
 	}
 }

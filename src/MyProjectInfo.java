@@ -1,43 +1,28 @@
 
-import java.awt.EventQueue;
-import java.awt.FlowLayout;
-
-import javax.swing.JFrame;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import javax.swing.JInternalFrame;
-import javax.swing.JScrollPane;
+import java.awt.Adjustable;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import java.awt.CardLayout;
-import javax.swing.JList;
-import javax.swing.JLabel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-
-
-
-import javax.swing.JSpinner;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.AbstractListModel;
-import javax.swing.border.TitledBorder;
-import javax.swing.JScrollBar;
-import javax.swing.JTextPane;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
-import java.awt.Color;
+import javax.swing.border.TitledBorder;
 
 public class MyProjectInfo {
 
@@ -392,9 +377,11 @@ public class MyProjectInfo {
 			list.setBorder(new LineBorder(new Color(0, 0, 0)));
 			list.setModel(new AbstractListModel() {
 				String[] values = new String[] {"Task One", "Task Two", "Task Three"};
+				@Override
 				public int getSize() {
 					return values.length;
 				}
+				@Override
 				public Object getElementAt(int index) {
 					return values[index];
 				}
@@ -606,7 +593,7 @@ public class MyProjectInfo {
 	}
 	private JScrollBar getScrollBar_1() {
 		if (scrollBar == null) {
-			scrollBar = new JScrollBar(JScrollBar.HORIZONTAL);
+			scrollBar = new JScrollBar(Adjustable.HORIZONTAL);
 		}
 		return scrollBar;
 	}

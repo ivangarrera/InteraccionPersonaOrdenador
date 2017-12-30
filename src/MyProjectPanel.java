@@ -10,8 +10,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 public class MyProjectPanel extends JPanel{
-	private JLabel lblProjectImage;
-	private JLabel lblProjectName;
+	public JLabel lblProjectImage;
+	public JLabel lblProjectName;
 	public Project associated_project;
 	private JCheckBox chckbxSelectProject;
 	

@@ -1,4 +1,3 @@
-
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import javax.swing.JFrame;
@@ -18,6 +17,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -38,14 +39,21 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.imageio.ImageIO;
 import javax.swing.AbstractListModel;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileSystemView;
 
+import java.text.SimpleDateFormat;
+
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.apache.commons.io.FileUtils;
 import javax.swing.JScrollBar;
 import javax.swing.JTextPane;
 import javax.swing.MutableComboBoxModel;
@@ -55,6 +63,7 @@ import java.awt.Color;
 import javax.swing.JLayeredPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import com.toedter.calendar.JDateChooser;
 
 public class MyProjectInfo {
 
@@ -70,8 +79,6 @@ public class MyProjectInfo {
 	private JLabel lblAdd_Manager;
 	private JComboBox comboBoxPriorityAdd;
 	private JLabel lblAdd_Priority;
-	private JTextField txtStartAdd;
-	private JTextField txtEndAdd;
 	private JLabel label;
 	private JLabel label_1;
 	private JComboBox comboBoxStateAdd;
@@ -83,7 +90,7 @@ public class MyProjectInfo {
 	private JLabel btnAddTask;
 	private JLabel btnChat;
 	private JLabel btnAddImage;
-	private JLabel lblNewLabel;
+	private JLabel lbimagetask;
 	private JSONArray tasks;
 	private JSONObject obj;
 	private JLabel lblAnotation;
@@ -96,8 +103,12 @@ public class MyProjectInfo {
 	private JLabel imgScroll1;
 	private JLabel imgScroll2;
 	private JLabel imgScroll3;
-	private JLabel labelScroll2;
+	private JLabel labelImageTask1;
 	private JLabel labelScroll1;
+	private String path, strDateStart,strDateEnd;
+	private Date dateStart, dateEnd;
+	private JDateChooser dateChooserStart;
+	private JDateChooser dateChooserEnd;
 
 	
 	/**
@@ -132,7 +143,7 @@ public class MyProjectInfo {
 			StringBuilder sb = new StringBuilder();
 
 		    String line;
-		    BufferedReader br = new BufferedReader(new FileReader("/Users/bersus96/Dropbox/Mi trabajo de eclipse/InteraccionPersonaOrdenador/src/data.json"));
+		    BufferedReader br = new BufferedReader(new FileReader("/Users/bersus96/Dropbox/Mi trabajo de eclipse/IPOProject/src/data.json"));
 		    while ((line = br.readLine()) != null) {
 		        sb.append(line);
 		    }
@@ -162,12 +173,12 @@ public class MyProjectInfo {
 		gridBagLayout.columnWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
 		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 1.0, 1.0, Double.MIN_VALUE};
 		frame.getContentPane().setLayout(gridBagLayout);
-		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-		gbc_lblNewLabel.gridheight = 2;
-		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel.gridx = 0;
-		gbc_lblNewLabel.gridy = 0;
-		frame.getContentPane().add(getLblNewLabel(), gbc_lblNewLabel);
+		GridBagConstraints gbc_lbimagetask = new GridBagConstraints();
+		gbc_lbimagetask.gridheight = 2;
+		gbc_lbimagetask.insets = new Insets(0, 0, 5, 5);
+		gbc_lbimagetask.gridx = 0;
+		gbc_lbimagetask.gridy = 0;
+		frame.getContentPane().add(getLbimagetask(), gbc_lbimagetask);
 		GridBagConstraints gbc_btnChat = new GridBagConstraints();
 		gbc_btnChat.anchor = GridBagConstraints.EAST;
 		gbc_btnChat.insets = new Insets(0, 0, 5, 0);
@@ -274,12 +285,14 @@ public class MyProjectInfo {
 				        try {
 							txtName.setText(tasks.getJSONObject(index).getString("name"));
 							txtManager.setText(tasks.getJSONObject(index).getString("manager"));
-							txtStartAdd.setText(tasks.getJSONObject(index).getString("start"));
-							txtEndAdd.setText(tasks.getJSONObject(index).getString("end"));
+							Date dateStart = new SimpleDateFormat("MMM dd, yyyy").parse(tasks.getJSONObject(index).getString("start"));
+							dateChooserStart.setDate(dateStart);
+							Date dateEnd = new SimpleDateFormat("MMM dd, yyyy").parse(tasks.getJSONObject(index).getString("end"));
+							dateChooserEnd.setDate(dateEnd);
 							textPaneAnotation.setText(tasks.getJSONObject(index).getString("anotation"));
 							comboBoxPriorityAdd.setSelectedIndex(tasks.getJSONObject(index).getInt("priority"));
 							comboBoxStateAdd.setSelectedIndex(tasks.getJSONObject(index).getInt("state"));
-						} catch (JSONException e1) {
+						} catch (JSONException | ParseException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
@@ -388,23 +401,23 @@ public class MyProjectInfo {
 			gbc_label.gridx = 1;
 			gbc_label.gridy = 16;
 			pnlAddTask.add(getLabel(), gbc_label);
-			GridBagConstraints gbc_txtStartAdd = new GridBagConstraints();
-			gbc_txtStartAdd.insets = new Insets(0, 0, 5, 5);
-			gbc_txtStartAdd.fill = GridBagConstraints.HORIZONTAL;
-			gbc_txtStartAdd.gridx = 5;
-			gbc_txtStartAdd.gridy = 16;
-			pnlAddTask.add(getTxtStartAdd(), gbc_txtStartAdd);
+			GridBagConstraints gbc_dateChooserStart = new GridBagConstraints();
+			gbc_dateChooserStart.insets = new Insets(0, 0, 5, 5);
+			gbc_dateChooserStart.fill = GridBagConstraints.HORIZONTAL;
+			gbc_dateChooserStart.gridx = 5;
+			gbc_dateChooserStart.gridy = 16;
+			pnlAddTask.add(getDateChooserStart(), gbc_dateChooserStart);
 			GridBagConstraints gbc_label_1 = new GridBagConstraints();
 			gbc_label_1.insets = new Insets(0, 0, 5, 5);
 			gbc_label_1.gridx = 1;
 			gbc_label_1.gridy = 18;
 			pnlAddTask.add(getLabel_1(), gbc_label_1);
-			GridBagConstraints gbc_txtEndAdd = new GridBagConstraints();
-			gbc_txtEndAdd.insets = new Insets(0, 0, 5, 5);
-			gbc_txtEndAdd.fill = GridBagConstraints.HORIZONTAL;
-			gbc_txtEndAdd.gridx = 5;
-			gbc_txtEndAdd.gridy = 18;
-			pnlAddTask.add(getTxtEndAdd(), gbc_txtEndAdd);
+			GridBagConstraints gbc_dateChooserEnd = new GridBagConstraints();
+			gbc_dateChooserEnd.insets = new Insets(0, 0, 5, 5);
+			gbc_dateChooserEnd.fill = GridBagConstraints.HORIZONTAL;
+			gbc_dateChooserEnd.gridx = 5;
+			gbc_dateChooserEnd.gridy = 18;
+			pnlAddTask.add(getDateChooser_1(), gbc_dateChooserEnd);
 			GridBagConstraints gbc_lblStateAdd = new GridBagConstraints();
 			gbc_lblStateAdd.insets = new Insets(0, 0, 5, 5);
 			gbc_lblStateAdd.gridx = 1;
@@ -469,20 +482,6 @@ public class MyProjectInfo {
 		}
 		return lblAdd_Priority;
 	}
-	private JTextField getTxtStartAdd() {
-		if (txtStartAdd == null) {
-			txtStartAdd = new JTextField();
-			txtStartAdd.setColumns(10);
-		}
-		return txtStartAdd;
-	}
-	private JTextField getTxtEndAdd() {
-		if (txtEndAdd == null) {
-			txtEndAdd = new JTextField();
-			txtEndAdd.setColumns(10);
-		}
-		return txtEndAdd;
-	}
 	private JLabel getLabel() {
 		if (label == null) {
 			label = new JLabel("Start:");
@@ -523,7 +522,7 @@ public class MyProjectInfo {
 	private JScrollPane getScrollPane() {
 		if (scrollPane == null) {
 			scrollPane = new JScrollPane();
-			scrollPane.setViewportView(getLabelScroll2());
+			scrollPane.setViewportView(getLabelImageTask1());
 			scrollPane.setRowHeaderView(getLabelScroll1());
 			imgScroll1 = new JLabel("");
 			imgScroll2 = new JLabel("");
@@ -546,8 +545,8 @@ public class MyProjectInfo {
 						pnlAddTask.setVisible(true);
 						txtName.setText("");
 						txtManager.setText("");
-						txtStartAdd.setText("");
-						txtEndAdd.setText("");
+						dateChooserStart.setDate(null);
+						dateChooserEnd.setDate(null);
 						textPaneAnotation.setText("");
 						comboBoxPriorityAdd.setSelectedIndex(0);
 						comboBoxStateAdd.setSelectedIndex(0);
@@ -573,44 +572,29 @@ public class MyProjectInfo {
 			btnAddImage.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					if(e.getClickCount() == 1){
-						JFileChooser chImage = new JFileChooser();
-						FileNameExtensionFilter filtroImagen=new FileNameExtensionFilter("JPG, PNG & GIF","jpg","png","gif");
-						chImage.showOpenDialog(null);
-					    chImage.setFileFilter(filtroImagen);
-					    int r=chImage.showOpenDialog(null);
-					    if(r==JFileChooser.APPROVE_OPTION){
-					    	try {
-					    		File f=chImage.getSelectedFile();
-					    		ImageIcon img=new ImageIcon(chImage.getSelectedFile().toURL());
-					    		System.out.println("Ruta de la imgaen "+f);
-					    		String ruta = null;
-								try {
-									ruta = FileUtils.readFileToString(f);
-								} catch (IOException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-					    		labelScroll1.setIcon(new ImageIcon(MyProjectInfo.class.getResource(ruta)));
-					    	} catch (MalformedURLException e1) {
-					    		// TODO Auto-generated catch block
-					    		e1.printStackTrace();
-					    	}
-					    }
+					if (e.getClickCount() == 1) {
+						JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+						jfc.setCurrentDirectory(new File("/Users/bersus96/Dropbox/Mi trabajo de eclipse/IPOProject/src/resources"));
+						int returnValue = jfc.showOpenDialog(null);
+						// int returnValue = jfc.showSaveDialog(null); labelImageTask1
+						if (returnValue == JFileChooser.APPROVE_OPTION) {
+							File selectedFile = jfc.getSelectedFile();
+							path = selectedFile.getAbsolutePath();
+							System.out.println(selectedFile.getAbsolutePath());
+							lbimagetask.setIcon(new ImageIcon(MyProjectInfo.class.getResource(path)));
+						}
 					}
 				}
 			});
-			
-			
 		}
 		return btnAddImage;
 	}
-	private JLabel getLblNewLabel() {
-		if (lblNewLabel == null) {
-			lblNewLabel = new JLabel("");
-			lblNewLabel.setIcon(new ImageIcon(MyProjectInfo.class.getResource("/resources/task.png")));
+	private JLabel getLbimagetask() {
+		if (lbimagetask == null) {
+			lbimagetask = new JLabel("");
+			lbimagetask.setIcon(new ImageIcon(MyProjectInfo.class.getResource("/resources/task.png")));
 		}
-		return lblNewLabel;
+		return lbimagetask;
 	}
 
 	private class BtnChatListener extends MouseAdapter {
@@ -663,21 +647,25 @@ public class MyProjectInfo {
 				public void mouseClicked(MouseEvent e) {
 					DefaultListModel model = new DefaultListModel();
 					if(e.getClickCount() == 1){
+						 dateStart = dateChooserStart.getDate();
+						 strDateStart = DateFormat.getDateInstance().format(dateStart);
+						 dateEnd = dateChooserEnd.getDate();
+						 strDateEnd = DateFormat.getDateInstance().format(dateEnd);
 						if (!txtName.getText().isEmpty() && !txtManager.getText().isEmpty() 
-								&& !txtStartAdd.getText().isEmpty() && !txtEndAdd.getText().isEmpty()) {
+								&& !strDateStart.isEmpty() && !strDateEnd.isEmpty()) {
 							JSONObject task = new JSONObject();
 							try {
 								task.put("name", txtName.getText());
 								task.put("manager", txtManager.getText());
 								task.put("priority", comboBoxPriorityAdd.getSelectedIndex());
 								task.put("state", comboBoxStateAdd.getSelectedIndex());
-								task.put("start", txtStartAdd.getText());
-								task.put("end",txtEndAdd.getText());
-								task.put("resources", "../resources/user.png");
+								task.put("start", strDateStart);
+								task.put("end",strDateEnd);
+								task.put("resources", path);
 								task.put("anotation", textPaneAnotation.getText());
 								tasks.put(task);
 								obj.put("tasks", tasks);
-								FileWriter file = new FileWriter("/Users/bersus96/Dropbox/Mi trabajo de eclipse/InteraccionPersonaOrdenador/src/data.json");
+								FileWriter file = new FileWriter("/Users/bersus96/Dropbox/Mi trabajo de eclipse/IPOProject/src/data.json");
 								BufferedWriter outstream = new BufferedWriter(file);
 								outstream.write(obj.toString());
 								outstream.close();
@@ -685,6 +673,14 @@ public class MyProjectInfo {
 								getList();
 							} catch (JSONException | IOException ex) {
 								// TODO Auto-generated catch block
+								ex.printStackTrace();
+							}
+							
+							try {
+								MyProjectInfo window = new MyProjectInfo();
+								window.frame.setVisible(true);
+								
+							} catch (Exception ex) {
 								ex.printStackTrace();
 							}
 						}
@@ -701,13 +697,11 @@ public class MyProjectInfo {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if(e.getClickCount() == 1){
-						
-						System.out.println("Index "+index);
 						try {
 							JSONObject tarea = tasks.getJSONObject(index);
 							obj.put("tasks", tasks);
 							tasks.remove(index);
-							FileWriter file = new FileWriter("/Users/bersus96/Dropbox/Mi trabajo de eclipse/InteraccionPersonaOrdenador/src/data.json");
+							FileWriter file = new FileWriter("/Users/bersus96/Dropbox/Mi trabajo de eclipse/IPOProject/src/data.json");
 							BufferedWriter outstream = new BufferedWriter(file);
 							outstream.write(obj.toString());
 							outstream.close();
@@ -718,6 +712,13 @@ public class MyProjectInfo {
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
+						}
+						try {
+							MyProjectInfo window = new MyProjectInfo();
+							window.frame.setVisible(true);
+							
+						} catch (Exception ex) {
+							ex.printStackTrace();
 						}
 					}
 					
@@ -734,32 +735,42 @@ public class MyProjectInfo {
 			btnModify.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					if(e.getClickCount() == 1){
+					 if(e.getClickCount() == 1){
+						 dateStart = dateChooserStart.getDate();
+						 strDateStart = DateFormat.getDateInstance().format(dateStart);
+						 dateEnd = dateChooserEnd.getDate();
+						 strDateEnd = DateFormat.getDateInstance().format(dateEnd);
 		
-						if (!txtName.getText().isEmpty() && !txtManager.getText().isEmpty() 
-								&& !txtStartAdd.getText().isEmpty() && !txtEndAdd.getText().isEmpty()) {
+						if (!txtName.getText().isEmpty() && !txtManager.getText().isEmpty() && !strDateStart.isEmpty() && !strDateEnd.isEmpty()) {
 					        try {
 					        	
 					        	JSONObject tarea = tasks.getJSONObject(index);
-					        	
 					        	tarea.put("name", txtName.getText());
 								tarea.put("manager", txtManager.getText());
 								tarea.put("priority", comboBoxPriorityAdd.getSelectedItem());
 								tarea.put("state", comboBoxStateAdd.getSelectedItem());
-								tarea.put("start", txtStartAdd.getText());
-								tarea.put("end",txtEndAdd.getText());
+								tarea.put("start", strDateStart);
+								tarea.put("end",strDateEnd);
 								tarea.put("resources", "../resources/user.png");
 								tarea.put("anotation", textPaneAnotation.getText());
 								tasks.put(tarea);
 								obj.put("tasks", tasks);
 								tasks.remove(index);
-								FileWriter file = new FileWriter("/Users/bersus96/Dropbox/Mi trabajo de eclipse/InteraccionPersonaOrdenador/src/data.json");
+								FileWriter file = new FileWriter("/Users/bersus96/Dropbox/Mi trabajo de eclipse/IPOProject/src/data.json");
 								BufferedWriter outstream = new BufferedWriter(file);
 								outstream.write(obj.toString());
 								outstream.close();
 							} catch (JSONException | IOException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
+							}
+
+							try {
+								MyProjectInfo window = new MyProjectInfo();
+								window.frame.setVisible(true);
+								
+							} catch (Exception ex) {
+								ex.printStackTrace();
 							}
 						}
 					}
@@ -768,16 +779,28 @@ public class MyProjectInfo {
 		}
 		return btnModify;
 	}
-	private JLabel getLabelScroll2() {
-		if (labelScroll2 == null) {
-			labelScroll2 = new JLabel("");
+	private JLabel getLabelImageTask1() {
+		if (labelImageTask1 == null) {
+			labelImageTask1 = new JLabel("");
 		}
-		return labelScroll2;
+		return labelImageTask1;
 	}
 	private JLabel getLabelScroll1() {
 		if (labelScroll1 == null) {
 			labelScroll1 = new JLabel("");
 		}
 		return labelScroll1;
+	}
+	private JDateChooser getDateChooserStart() {
+		if (dateChooserStart == null) {
+			dateChooserStart = new JDateChooser();
+		}
+		return dateChooserStart;
+	}
+	private JDateChooser getDateChooser_1() {
+		if (dateChooserEnd == null) {
+			dateChooserEnd = new JDateChooser();
+		}
+		return dateChooserEnd;
 	}
 }

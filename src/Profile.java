@@ -80,7 +80,7 @@ public class Profile {
 			StringBuilder sb = new StringBuilder();
 
 		    String line;
-		    BufferedReader br = new BufferedReader(new FileReader("/home/ivangarrera/Desktop/data.json"));
+		    BufferedReader br = new BufferedReader(new FileReader(MyProjectPanel.class.getResource("data.json").getPath()));
 		    while ((line = br.readLine()) != null) {
 		        sb.append(line);
 		    }
@@ -101,7 +101,7 @@ public class Profile {
 					// Save last access on disk
 					users.getJSONObject(i).put("last_access", new Date().toString());
 					obj.put("users", users);
-					FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+					FileWriter file = new FileWriter(MyProjectPanel.class.getResource("data.json").getPath());
 					BufferedWriter outstream = new BufferedWriter(file);
 					outstream.write(obj.toString());
 					outstream.close();
@@ -130,7 +130,7 @@ public class Profile {
 			StringBuilder sb = new StringBuilder();
 
 		    String line;
-		    BufferedReader br = new BufferedReader(new FileReader("/home/ivangarrera/Desktop/data.json"));
+		    BufferedReader br = new BufferedReader(new FileReader(MyProjectPanel.class.getResource("data.json").getPath()));
 		    while ((line = br.readLine()) != null) {
 		        sb.append(line);
 		    }
@@ -437,7 +437,7 @@ public class Profile {
 			try {
 				current_user_json.put("rol", comboBox_rol.getSelectedItem().toString());
 				obj.put("users", users);
-				FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+				FileWriter file = new FileWriter(MyProjectPanel.class.getResource("data.json").getPath());
 				BufferedWriter outstream = new BufferedWriter(file);
 				outstream.write(obj.toString());
 				outstream.close();
@@ -502,7 +502,7 @@ public class Profile {
 					|| !passwordField_password.getText().isEmpty()) {
 				try {
 					obj.put("users", users);
-					FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+					FileWriter file = new FileWriter(MyProjectPanel.class.getResource("data.json").getPath());
 					BufferedWriter outstream = new BufferedWriter(file);
 					outstream.write(obj.toString());
 					outstream.close();

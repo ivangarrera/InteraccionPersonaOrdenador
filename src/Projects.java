@@ -96,7 +96,7 @@ public class Projects {
 			StringBuilder sb = new StringBuilder();
 
 		    String line;
-		    BufferedReader br = new BufferedReader(new FileReader("/home/ivangarrera/Desktop/data.json"));
+		    BufferedReader br = new BufferedReader(new FileReader(MyProjectPanel.class.getResource("data.json").getPath()));
 		    while ((line = br.readLine()) != null) {
 		        sb.append(line);
 		    }
@@ -157,6 +157,7 @@ public class Projects {
 		panel.add(btn_search, gbc_btn_search);
 		
 		lbl_filter = new JLabel("");
+		lbl_filter.addMouseListener(new Lbl_filterMouseListener());
 		lbl_filter.setIcon(new ImageIcon(Projects.class.getResource("/resources/filter.png")));
 		GridBagConstraints gbc_lbl_filter = new GridBagConstraints();
 		gbc_lbl_filter.insets = new Insets(0, 0, 5, 5);
@@ -452,7 +453,7 @@ public class Projects {
 				// Save changes on disk
 				try {
 					obj.put("projects", projects);
-					FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+					FileWriter file = new FileWriter(MyProjectPanel.class.getResource("data.json").getPath());
 					BufferedWriter outstream = new BufferedWriter(file);
 					outstream.write(obj.toString());
 					outstream.close();
@@ -485,7 +486,7 @@ public class Projects {
 					proj.put("description", "empty");
 					projects.put(proj);
 					obj.put("projects", projects);
-					FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+					FileWriter file = new FileWriter(MyProjectPanel.class.getResource("data.json").getPath());
 					BufferedWriter outstream = new BufferedWriter(file);
 					outstream.write(obj.toString());
 					outstream.close();
@@ -561,7 +562,7 @@ public class Projects {
 					new_path = null;
 				}
 				
-				FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+				FileWriter file = new FileWriter(MyProjectPanel.class.getResource("data.json").getPath());
 				BufferedWriter outstream = new BufferedWriter(file);
 				outstream.write(obj.toString());
 				outstream.close();
@@ -609,6 +610,15 @@ public class Projects {
 				}
 			}
 			pnl_projects.updateUI();
+		}
+	}
+	private class Lbl_filterMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			MyProjectInfo window = new MyProjectInfo();
+			window.frame.setVisible(true);
+			frame.setVisible(false);
+			frame.dispose();
 		}
 	}
 	

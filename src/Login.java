@@ -29,6 +29,7 @@ import javax.swing.border.TitledBorder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.awt.SystemColor;
 
 public class Login {
 
@@ -87,7 +88,7 @@ public class Login {
 			StringBuilder sb = new StringBuilder();
 
 		    String line;
-		    BufferedReader br = new BufferedReader(new FileReader("/home/ivangarrera/Desktop/data.json"));
+		    BufferedReader br = new BufferedReader(new FileReader(MyProjectPanel.class.getResource("data.json").getPath()));
 		    while ((line = br.readLine()) != null) {
 		        sb.append(line);
 		    }
@@ -132,8 +133,9 @@ public class Login {
 		panel_image.setLayout(gbl_panel_image);
 		
 		lblimage = new JLabel("");
+		lblimage.setBackground(SystemColor.control);
 		lblimage.setHorizontalAlignment(SwingConstants.CENTER);
-		lblimage.setIcon(new ImageIcon("/home/ivangarrera/Desktop/gestion.png"));
+		lblimage.setIcon(null);
 		GridBagConstraints gbc_lblimage = new GridBagConstraints();
 		gbc_lblimage.fill = GridBagConstraints.BOTH;
 		gbc_lblimage.gridx = 0;
@@ -141,7 +143,7 @@ public class Login {
 		panel_image.add(lblimage, gbc_lblimage);
 		
 		panel_existing_user = new JPanel();
-		panel_existing_user.setBackground(new Color(204, 255, 153));
+		panel_existing_user.setBackground(SystemColor.control);
 		panel_existing_user.setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), "Existing User", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(51, 51, 51)));
 		GridBagConstraints gbc_panel_existing_user = new GridBagConstraints();
 		gbc_panel_existing_user.insets = new Insets(0, 0, 5, 0);
@@ -201,7 +203,7 @@ public class Login {
 		panel_existing_user.add(btnlogin, gbc_btnlogin);
 		
 		panel_new_user = new JPanel();
-		panel_new_user.setBackground(Color.CYAN);
+		panel_new_user.setBackground(SystemColor.control);
 		panel_new_user.setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), "New User?", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(51, 51, 51)));
 		GridBagConstraints gbc_panel_new_user = new GridBagConstraints();
 		gbc_panel_new_user.insets = new Insets(0, 0, 5, 0);
@@ -332,7 +334,7 @@ public class Login {
 					user.put("rol", "employee");
 					users.put(user);
 					obj.put("users", users);
-					FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
+					FileWriter file = new FileWriter(MyProjectPanel.class.getResource("data.json").getPath());
 					BufferedWriter outstream = new BufferedWriter(file);
 					outstream.write(obj.toString());
 					outstream.close();

@@ -19,7 +19,6 @@ public class Chat {
 	private JLabel icon_clip;
 	private JLabel icon_chat;
 	private JTextField txt_msg;
-	private JLabel icon_back_task;
 	private JLabel lblTasks;
 	private JScrollPane scrollPane;
 	private JTextArea textArea;
@@ -43,11 +42,6 @@ public class Chat {
 		gridBagLayout.columnWeights = new double[]{0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
 		gridBagLayout.rowWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
 		frame.getContentPane().setLayout(gridBagLayout);
-		GridBagConstraints gbc_icon_back_task = new GridBagConstraints();
-		gbc_icon_back_task.insets = new Insets(0, 0, 5, 5);
-		gbc_icon_back_task.gridx = 0;
-		gbc_icon_back_task.gridy = 0;
-		frame.getContentPane().add(getIcon_back_task(), gbc_icon_back_task);
 		GridBagConstraints gbc_lblTasks = new GridBagConstraints();
 		gbc_lblTasks.insets = new Insets(0, 0, 5, 5);
 		gbc_lblTasks.gridx = 1;
@@ -112,13 +106,6 @@ public class Chat {
 			txt_msg.setColumns(10);
 		}
 		return txt_msg;
-	}
-	private JLabel getIcon_back_task() {
-		if (icon_back_task == null) {
-			icon_back_task = new JLabel("");
-			icon_back_task.setIcon(new ImageIcon(Chat.class.getResource("/resources/icon_back.png")));
-		}
-		return icon_back_task;
 	}
 	private JLabel getLblTasks() {
 		if (lblTasks == null) {

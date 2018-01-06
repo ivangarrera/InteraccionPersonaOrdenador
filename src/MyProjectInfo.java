@@ -1,13 +1,10 @@
-import java.awt.EventQueue;
-import java.awt.FlowLayout;
-import javax.swing.JFrame;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import javax.swing.JInternalFrame;
-import javax.swing.JScrollPane;
+import java.awt.Adjustable;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Label;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -17,55 +14,42 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import java.awt.CardLayout;
-import javax.swing.JList;
-import javax.swing.JLabel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JSpinner;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
+
+import javax.imageio.ImageIO;
+import javax.swing.AbstractButton;
+import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
-import javax.imageio.ImageIO;
-import javax.swing.AbstractListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.ListModel;
+import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
-import java.text.SimpleDateFormat;
-
-import org.jdatepicker.impl.JDatePanelImpl;
-import org.jdatepicker.impl.JDatePickerImpl;
-import org.jdatepicker.impl.UtilDateModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.MutableComboBoxModel;
-import javax.swing.ImageIcon;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
-import javax.swing.JLayeredPane;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+
+import com.toedter.calendar.JCalendar;
 import com.toedter.calendar.JDateChooser;
 
 
@@ -88,7 +72,6 @@ public class MyProjectInfo {
 	private JComboBox comboBoxStateAdd;
 	private JLabel lblStateAdd;
 	private JTextPane textPaneAnotation;
-	private JScrollBar scrollBar;
 	private JButton button;
 	private JScrollPane scrollPane;
 	private JLabel btnAddTask;
@@ -104,20 +87,26 @@ public class MyProjectInfo {
 	private JButton btnDelete;
 	private JButton btnModify;
 	private int index;
-	private JLabel imgScroll1;
-	private JLabel imgScroll2;
-	private JLabel imgScroll3;
-	private JLabel labelImageTask1;
-	private JLabel labelScroll1;
 	private String path, strDateStart,strDateEnd;
 	private Date dateStart, dateEnd;
 	private JDateChooser dateChooserStart;
 	private JDateChooser dateChooserEnd;
+	private ArrayList<String> values;
+	private JPanel panel_calendar;
+	private JCalendar calendar;
+	private ArrayList<JLabel> images_labels;
+	private JSONArray resources;
+	private JSONObject global_object;
 
 	/**
 	 * Create the application.
 	 */
 	public MyProjectInfo() {
+		values = new ArrayList<String>(); 
+		images_labels = new ArrayList<>();
+		calendar = new JCalendar();
+		resources = new JSONArray();
+		global_object = new JSONObject();
 		initialize();
 	}
 
@@ -129,7 +118,7 @@ public class MyProjectInfo {
 			StringBuilder sb = new StringBuilder();
 
 		    String line;
-		    BufferedReader br = new BufferedReader(new FileReader("/Users/bersus96/Dropbox/Mi trabajo de eclipse/IPOProject/src/data.json"));
+		    BufferedReader br = new BufferedReader(new FileReader(MyProjectPanel.class.getResource("data.json").getPath()));
 		    while ((line = br.readLine()) != null) {
 		        sb.append(line);
 		    }
@@ -149,6 +138,7 @@ public class MyProjectInfo {
 		}
 	}
 	private void initialize() {
+		
 		updateList();
 		frame = new JFrame();
 		frame.setBounds(100, 100, 1000, 850);
@@ -157,7 +147,7 @@ public class MyProjectInfo {
 		gridBagLayout.columnWidths = new int[]{216, 277, 384, 0};
 		gridBagLayout.rowHeights = new int[]{38, 41, 627, 13, 0};
 		gridBagLayout.columnWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 1.0, 1.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{1.0, 0.0, 1.0, 1.0, Double.MIN_VALUE};
 		frame.getContentPane().setLayout(gridBagLayout);
 		GridBagConstraints gbc_lbimagetask = new GridBagConstraints();
 		gbc_lbimagetask.gridheight = 2;
@@ -203,8 +193,6 @@ public class MyProjectInfo {
 		btnModify.setVisible(false);
 		btnDelete.setVisible(false);
 		btnAdd.setVisible(false);
-		
-		
 	
 	}
 	private JPanel getPanel_1() {
@@ -235,12 +223,19 @@ public class MyProjectInfo {
 			gbc_list.gridx = 0;
 			gbc_list.gridy = 1;
 			pnl_task.add(getList(), gbc_list);
+			GridBagConstraints gbc_panel_calendar = new GridBagConstraints();
+			gbc_panel_calendar.insets = new Insets(0, 0, 5, 5);
+			gbc_panel_calendar.fill = GridBagConstraints.BOTH;
+			gbc_panel_calendar.gridx = 0;
+			gbc_panel_calendar.gridy = 1;
+			pnl_task.add(getPanel_1_1(), gbc_panel_calendar);
 		}
 		return pnl_task;
 	}
 	private JLabel getLbl_list() {
 		if (lbl_list == null) {
 			lbl_list = new JLabel("");
+			lbl_list.addMouseListener(new Lbl_listMouseListener());
 			lbl_list.setIcon(new ImageIcon(MyProjectInfo.class.getResource("/resources/list.png")));
 		}
 		return lbl_list;
@@ -248,6 +243,7 @@ public class MyProjectInfo {
 	private JLabel getLbl_calendar() {
 		if (lbl_calendar == null) {
 			lbl_calendar = new JLabel("");
+			lbl_calendar.addMouseListener(new Lbl_calendarMouseListener());
 			lbl_calendar.setIcon(new ImageIcon(MyProjectInfo.class.getResource("/resources/calendar.png")));
 		}
 		return lbl_calendar;
@@ -255,7 +251,6 @@ public class MyProjectInfo {
 	private JList getList() {
 		updateList();
 		if (list == null) {
-			ArrayList<String> values = new ArrayList<String>(); 
 		
 			list = new JList();
 			list.addMouseListener(new MouseAdapter() {
@@ -268,17 +263,26 @@ public class MyProjectInfo {
 						pnlAddTask.setBorder(new TitledBorder(null, "Task Info", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 						pnlAddTask.setVisible(true);
 						index = list.locationToIndex(e.getPoint());
-				        try {
+				        try {				      
+			    			StringBuilder sb = new StringBuilder();
+			    		    String line;
+			    		    BufferedReader br = new BufferedReader(new FileReader(MyProjectPanel.class.getResource("data.json").getPath()));
+			    		    while ((line = br.readLine()) != null) {
+			    		        sb.append(line);
+			    		    }
+			    			global_object = new JSONObject(sb.toString());
+			    			resources = global_object.getJSONArray("tasks").getJSONObject(index).getJSONArray("resources");		    						  
+				        	
 							txtName.setText(tasks.getJSONObject(index).getString("name"));
 							txtManager.setText(tasks.getJSONObject(index).getString("manager"));
-							Date dateStart = new SimpleDateFormat("MMM dd, yyyy").parse(tasks.getJSONObject(index).getString("start"));
+							Date dateStart = new SimpleDateFormat("dd/MM/yyyy").parse(tasks.getJSONObject(index).getString("start"));
 							dateChooserStart.setDate(dateStart);
-							Date dateEnd = new SimpleDateFormat("MMM dd, yyyy").parse(tasks.getJSONObject(index).getString("end"));
+							Date dateEnd = new SimpleDateFormat("dd/MM/yyyy").parse(tasks.getJSONObject(index).getString("end"));
 							dateChooserEnd.setDate(dateEnd);
 							textPaneAnotation.setText(tasks.getJSONObject(index).getString("anotation"));
 							comboBoxPriorityAdd.setSelectedIndex(tasks.getJSONObject(index).getInt("priority"));
 							comboBoxStateAdd.setSelectedIndex(tasks.getJSONObject(index).getInt("state"));
-						} catch (JSONException | ParseException e1) {
+						} catch (JSONException | ParseException | IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
@@ -342,13 +346,6 @@ public class MyProjectInfo {
 			gbc_btnAddImage.gridx = 6;
 			gbc_btnAddImage.gridy = 4;
 			pnlAddTask.add(getBtnAddImage(), gbc_btnAddImage);
-			GridBagConstraints gbc_scrollBar = new GridBagConstraints();
-			gbc_scrollBar.fill = GridBagConstraints.HORIZONTAL;
-			gbc_scrollBar.gridwidth = 5;
-			gbc_scrollBar.insets = new Insets(0, 0, 5, 5);
-			gbc_scrollBar.gridx = 1;
-			gbc_scrollBar.gridy = 7;
-			pnlAddTask.add(getScrollBar_1(), gbc_scrollBar);
 			GridBagConstraints gbc_lblAdd_Name = new GridBagConstraints();
 			gbc_lblAdd_Name.insets = new Insets(0, 0, 5, 5);
 			gbc_lblAdd_Name.gridx = 1;
@@ -499,21 +496,9 @@ public class MyProjectInfo {
 		}
 		return textPaneAnotation;
 	}
-	private JScrollBar getScrollBar_1() {
-		if (scrollBar == null) {
-			scrollBar = new JScrollBar(Adjustable.HORIZONTAL);
-		}
-		return scrollBar;
-	}
 	private JScrollPane getScrollPane() {
 		if (scrollPane == null) {
-			scrollPane = new JScrollPane();
-			scrollPane.setViewportView(getLabelImageTask1());
-			scrollPane.setRowHeaderView(getLabelScroll1());
-			imgScroll1 = new JLabel("");
-			imgScroll2 = new JLabel("");
-			imgScroll3 = new JLabel("");
-			
+			scrollPane = new JScrollPane(new JPanel());
 		}
 		return scrollPane;
 	}
@@ -559,15 +544,55 @@ public class MyProjectInfo {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if (e.getClickCount() == 1) {
-						JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-						jfc.setCurrentDirectory(new File("/Users/bersus96/Dropbox/Mi trabajo de eclipse/IPOProject/src/resources"));
-						int returnValue = jfc.showOpenDialog(null);
-						// int returnValue = jfc.showSaveDialog(null); labelImageTask1
-						if (returnValue == JFileChooser.APPROVE_OPTION) {
-							File selectedFile = jfc.getSelectedFile();
-							path = selectedFile.getAbsolutePath();
-							System.out.println(selectedFile.getAbsolutePath());
-							lbimagetask.setIcon(new ImageIcon(MyProjectInfo.class.getResource(path)));
+						JFileChooser file_chooser = new JFileChooser();
+						file_chooser.showOpenDialog(pnl_task);
+						FileFilter imageFilter = new FileNameExtensionFilter("Image Files", ImageIO.getReaderFileSuffixes());
+						file_chooser.setFileFilter(imageFilter);
+						String path = file_chooser.getSelectedFile().getAbsolutePath();
+						((JPanel)scrollPane.getViewport().getView()).removeAll();
+						try {
+							JSONObject obj = new JSONObject();
+							obj.put("resource", path);
+							resources.put(obj);
+							for (int i = 0; i < resources.length(); i++) {
+								String path_res = resources.getJSONObject(i).getString("resource");
+								if (path_res.contains("resources/")) {
+									JLabel my_lab = new JLabel();
+									ImageIcon icon = new ImageIcon(MyProjectPanel.class.getResource(path_res));
+									Image img = icon.getImage();
+									Image scaled = img.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
+									ImageIcon scaled_icon = new ImageIcon(scaled);
+									my_lab.setIcon(scaled_icon);
+									images_labels.add(my_lab);
+									for (JLabel lbl : images_labels)  {
+										lbl.setVisible(true);
+										((JPanel)scrollPane.getViewport().getView()).add(lbl);
+										scrollPane.repaint();
+										scrollPane.revalidate();
+									}
+								} else {
+									JLabel my_lab = new JLabel();
+									ImageIcon icon = new ImageIcon(path_res);
+									Image img = icon.getImage();
+									Image scaled = img.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
+									ImageIcon scaled_icon = new ImageIcon(scaled);
+									my_lab.setIcon(scaled_icon);
+									images_labels.add(my_lab);
+									for (JLabel lbl : images_labels)  {
+										lbl.setVisible(true);
+										((JPanel)scrollPane.getViewport().getView()).add(lbl);
+										scrollPane.repaint();
+										scrollPane.revalidate();
+									}
+								}	
+							}
+							FileWriter file = new FileWriter(MyProjectPanel.class.getResource("data.json").getPath());
+							BufferedWriter outstream = new BufferedWriter(file);
+							outstream.write(global_object.toString());
+							outstream.close();
+						} catch (JSONException | IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
 						}
 					}
 				}
@@ -578,6 +603,7 @@ public class MyProjectInfo {
 	private JLabel getLbimagetask() {
 		if (lbimagetask == null) {
 			lbimagetask = new JLabel("");
+			lbimagetask.addMouseListener(new LbimagetaskMouseListener());
 			lbimagetask.setIcon(new ImageIcon(MyProjectInfo.class.getResource("/resources/task.png")));
 		}
 		return lbimagetask;
@@ -588,6 +614,33 @@ public class MyProjectInfo {
 		public void mouseClicked(MouseEvent event) {
 			Chat window = new Chat();
 			window.frame.setVisible(true);
+		}
+	}
+	private class LbimagetaskMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			try {
+				Projects window = new Projects();
+				window.frame.setVisible(true);
+				frame.setVisible(false);
+				frame.dispose();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	private class Lbl_calendarMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			panel_calendar.setVisible(true);
+			list.setVisible(false);
+		}
+	}
+	private class Lbl_listMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			list.setVisible(true);
+			panel_calendar.setVisible(false);
 		}
 	}
 
@@ -631,7 +684,6 @@ public class MyProjectInfo {
 			btnAdd.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					DefaultListModel model = new DefaultListModel();
 					if(e.getClickCount() == 1){
 						 dateStart = dateChooserStart.getDate();
 						 strDateStart = DateFormat.getDateInstance().format(dateStart);
@@ -646,27 +698,28 @@ public class MyProjectInfo {
 								task.put("priority", comboBoxPriorityAdd.getSelectedIndex());
 								task.put("state", comboBoxStateAdd.getSelectedIndex());
 								task.put("start", strDateStart);
+								task.put("resources", new JSONArray());
 								task.put("end",strDateEnd);
-								task.put("resources", path);
 								task.put("anotation", textPaneAnotation.getText());
 								tasks.put(task);
 								obj.put("tasks", tasks);
-								FileWriter file = new FileWriter("/Users/bersus96/Dropbox/Mi trabajo de eclipse/IPOProject/src/data.json");
+								FileWriter file = new FileWriter(MyProjectPanel.class.getResource("data.json").getPath());
 								BufferedWriter outstream = new BufferedWriter(file);
 								outstream.write(obj.toString());
 								outstream.close();
-								list.setModel(model);
+								values.add(task.getString("name"));
+								list.setModel(new AbstractListModel() {	
+									public int getSize() {					
+										return values.size();
+									}
+									public Object getElementAt(int index) {
+										return values.get(index);
+									}				
+								});
 								getList();
+						
 							} catch (JSONException | IOException ex) {
 								// TODO Auto-generated catch block
-								ex.printStackTrace();
-							}
-							
-							try {
-								MyProjectInfo window = new MyProjectInfo();
-								window.frame.setVisible(true);
-								
-							} catch (Exception ex) {
 								ex.printStackTrace();
 							}
 						}
@@ -687,10 +740,19 @@ public class MyProjectInfo {
 							JSONObject tarea = tasks.getJSONObject(index);
 							obj.put("tasks", tasks);
 							tasks.remove(index);
-							FileWriter file = new FileWriter("/Users/bersus96/Dropbox/Mi trabajo de eclipse/IPOProject/src/data.json");
+							FileWriter file = new FileWriter(MyProjectPanel.class.getResource("data.json").getPath());
 							BufferedWriter outstream = new BufferedWriter(file);
 							outstream.write(obj.toString());
 							outstream.close();
+							values.remove(values.indexOf(tarea.get("name")));
+							list.setModel(new AbstractListModel() {	
+								public int getSize() {					
+									return values.size();
+								}
+								public Object getElementAt(int index) {
+									return values.get(index);
+								}				
+							});
 							getList();
 						} catch (JSONException e1) {
 							// TODO Auto-generated catch block
@@ -698,13 +760,6 @@ public class MyProjectInfo {
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
-						}
-						try {
-							MyProjectInfo window = new MyProjectInfo();
-							window.frame.setVisible(true);
-							
-						} catch (Exception ex) {
-							ex.printStackTrace();
 						}
 					}
 					
@@ -737,26 +792,26 @@ public class MyProjectInfo {
 								tarea.put("state", comboBoxStateAdd.getSelectedItem());
 								tarea.put("start", strDateStart);
 								tarea.put("end",strDateEnd);
-								tarea.put("resources", "../resources/user.png");
 								tarea.put("anotation", textPaneAnotation.getText());
 								tasks.put(tarea);
 								obj.put("tasks", tasks);
 								tasks.remove(index);
-								FileWriter file = new FileWriter("/Users/bersus96/Dropbox/Mi trabajo de eclipse/IPOProject/src/data.json");
+								FileWriter file = new FileWriter(MyProjectPanel.class.getResource("data.json").getPath());
 								BufferedWriter outstream = new BufferedWriter(file);
 								outstream.write(obj.toString());
 								outstream.close();
+								list.setModel(new AbstractListModel() {	
+									public int getSize() {					
+										return values.size();
+									}
+									public Object getElementAt(int index) {
+										return values.get(index);
+									}				
+								});
+								getList();
 							} catch (JSONException | IOException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
-							}
-
-							try {
-								MyProjectInfo window = new MyProjectInfo();
-								window.frame.setVisible(true);
-								
-							} catch (Exception ex) {
-								ex.printStackTrace();
 							}
 						}
 					}
@@ -764,18 +819,6 @@ public class MyProjectInfo {
 			});
 		}
 		return btnModify;
-	}
-	private JLabel getLabelImageTask1() {
-		if (labelImageTask1 == null) {
-			labelImageTask1 = new JLabel("");
-		}
-		return labelImageTask1;
-	}
-	private JLabel getLabelScroll1() {
-		if (labelScroll1 == null) {
-			labelScroll1 = new JLabel("");
-		}
-		return labelScroll1;
 	}
 	private JDateChooser getDateChooserStart() {
 		if (dateChooserStart == null) {
@@ -788,5 +831,13 @@ public class MyProjectInfo {
 			dateChooserEnd = new JDateChooser();
 		}
 		return dateChooserEnd;
+	}
+	private JPanel getPanel_1_1() {
+		if (panel_calendar == null) {
+			panel_calendar = new JPanel();
+			panel_calendar.setVisible(false);
+			panel_calendar.add(calendar);
+		}
+		return panel_calendar;
 	}
 }

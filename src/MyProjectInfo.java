@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -55,6 +56,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.MutableComboBoxModel;
 import javax.swing.ImageIcon;
@@ -64,6 +67,7 @@ import javax.swing.JLayeredPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import com.toedter.calendar.JDateChooser;
+
 
 public class MyProjectInfo {
 
@@ -109,24 +113,6 @@ public class MyProjectInfo {
 	private Date dateStart, dateEnd;
 	private JDateChooser dateChooserStart;
 	private JDateChooser dateChooserEnd;
-
-	
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					MyProjectInfo window = new MyProjectInfo();
-					window.frame.setVisible(true);
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the application.
@@ -515,7 +501,7 @@ public class MyProjectInfo {
 	}
 	private JScrollBar getScrollBar_1() {
 		if (scrollBar == null) {
-			scrollBar = new JScrollBar(JScrollBar.HORIZONTAL);
+			scrollBar = new JScrollBar(Adjustable.HORIZONTAL);
 		}
 		return scrollBar;
 	}

@@ -1,26 +1,10 @@
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import java.awt.GridBagLayout;
-import javax.swing.JPanel;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import javax.swing.border.TitledBorder;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import javax.swing.border.LineBorder;
 import java.awt.Color;
-import java.awt.Container;
-
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.SwingConstants;
-import javax.swing.JPasswordField;
-import javax.swing.ImageIcon;
+import java.awt.EventQueue;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -30,6 +14,21 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Login {
 
@@ -52,12 +51,14 @@ public class Login {
 	private JLabel lblimage;
 	private JSONArray users;
 	private JSONObject obj;
+	private JLabel lbl_status_info;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Login window = new Login();
@@ -151,7 +152,7 @@ public class Login {
 		GridBagLayout gbl_panel_existing_user = new GridBagLayout();
 		gbl_panel_existing_user.columnWidths = new int[]{77, 70, 70, 0};
 		gbl_panel_existing_user.rowHeights = new int[]{15, 0, 0, 0, 0, 0, 0};
-		gbl_panel_existing_user.columnWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_existing_user.columnWeights = new double[]{0.0, 0.0, 1.0, Double.MIN_VALUE};
 		gbl_panel_existing_user.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panel_existing_user.setLayout(gbl_panel_existing_user);
 		
@@ -211,7 +212,7 @@ public class Login {
 		GridBagLayout gbl_panel_new_user = new GridBagLayout();
 		gbl_panel_new_user.columnWidths = new int[]{0, 69, 60, 0};
 		gbl_panel_new_user.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_panel_new_user.columnWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_new_user.columnWeights = new double[]{0.0, 0.0, 1.0, Double.MIN_VALUE};
 		gbl_panel_new_user.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panel_new_user.setLayout(gbl_panel_new_user);
 		
@@ -277,6 +278,13 @@ public class Login {
 		gbc_passwordFieldnew.gridx = 1;
 		gbc_passwordFieldnew.gridy = 2;
 		panel_new_user.add(passwordFieldnew, gbc_passwordFieldnew);
+		
+		lbl_status_info = new JLabel("");
+		GridBagConstraints gbc_lbl_status_info = new GridBagConstraints();
+		gbc_lbl_status_info.insets = new Insets(0, 0, 0, 5);
+		gbc_lbl_status_info.gridx = 0;
+		gbc_lbl_status_info.gridy = 2;
+		frmLogin.getContentPane().add(lbl_status_info, gbc_lbl_status_info);
 	}
 
 	private class BtnloginMouseListener extends MouseAdapter {
@@ -286,12 +294,24 @@ public class Login {
 				for (int i = 0; i < users.length(); i++) {
 					if (users.getJSONObject(i).getString("user").equals(textFieldusrlogin.getText())
 							&& users.getJSONObject(i).getString("password").equals(passwordFieldlogin.getText())) {
-						Profile window = new Profile(textFieldusrlogin.getText());
+						Profile window = new Profile(users.getJSONObject(i).getString("user"));
 						window.frame.setVisible(true);
 						frmLogin.setVisible(false);
 						frmLogin.dispose();
+						break;
 					}
 				}
+				lbl_status_info.setForeground(Color.RED);
+				lbl_status_info.setText("User or password not correct.");
+				ActionListener taskPerformer = new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						lbl_status_info.setText("");
+					}
+				};
+				javax.swing.Timer timer = new javax.swing.Timer(2500, taskPerformer);
+				timer.setRepeats(false);
+				timer.start();
 			} catch (Exception e) {
 				e.printStackTrace();
 			} 
@@ -316,10 +336,43 @@ public class Login {
 					BufferedWriter outstream = new BufferedWriter(file);
 					outstream.write(obj.toString());
 					outstream.close();
+					lbl_status_info.setForeground(Color.GREEN);
+					lbl_status_info.setText("User registered correctly.");
+					ActionListener taskPerformer = new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							lbl_status_info.setText("");
+						}
+					};
+					javax.swing.Timer timer = new javax.swing.Timer(2500, taskPerformer);
+					timer.setRepeats(false);
+					timer.start();
 				} catch (JSONException | IOException e) {
-					// TODO Auto-generated catch block
+					lbl_status_info.setForeground(Color.RED);
+					lbl_status_info.setText("User hasn't registered correctly.");
+					ActionListener taskPerformer = new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							lbl_status_info.setText("");
+						}
+					};
+					javax.swing.Timer timer = new javax.swing.Timer(2500, taskPerformer);
+					timer.setRepeats(false);
+					timer.start();
 					e.printStackTrace();
 				}
+			} else {
+				lbl_status_info.setForeground(Color.RED);
+				lbl_status_info.setText("Fields can't be empty.");
+				ActionListener taskPerformer = new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						lbl_status_info.setText("");
+					}
+				};
+				javax.swing.Timer timer = new javax.swing.Timer(2500, taskPerformer);
+				timer.setRepeats(false);
+				timer.start();
 			}
 		}
 	}

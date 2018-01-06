@@ -1,33 +1,38 @@
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import java.awt.GridBagLayout;
-import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.ImageFilter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.ThreadLocalRandom;
 
-import javax.swing.JTextField;
-
+import javax.imageio.ImageIO;
+import javax.swing.AbstractListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.imageio.ImageIO;
-import javax.swing.AbstractButton;
-import javax.swing.ImageIcon;
-import java.awt.GridLayout;
-import java.awt.Image;
-
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -35,15 +40,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import javax.swing.JList;
-import javax.swing.JTextPane;
-import javax.swing.AbstractListModel;
-import javax.swing.Icon;
-import java.awt.BorderLayout;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 public class Projects {
 
@@ -77,8 +73,10 @@ public class Projects {
 	private JButton btnEditProjectInfo;
 	private JSONArray projects;
 	private JSONObject obj;
+	private String new_path;
 	
 	private Project current_proj;
+	private JLabel lblInfo;
 	
 	/**
 	 * Create the application.
@@ -151,6 +149,7 @@ public class Projects {
 		txtSearch.setColumns(10);
 		
 		btn_search = new JButton("Search");
+		btn_search.addMouseListener(new Btn_searchMouseListener());
 		GridBagConstraints gbc_btn_search = new GridBagConstraints();
 		gbc_btn_search.insets = new Insets(0, 0, 5, 5);
 		gbc_btn_search.gridx = 1;
@@ -253,9 +252,11 @@ public class Projects {
 		list = new JList();
 		list.setModel(new AbstractListModel() {
 			String[] values = new String[] {"Item1", "Item2", "Item3", "Item4"};
+			@Override
 			public int getSize() {
 				return values.length;
 			}
+			@Override
 			public Object getElementAt(int index) {
 				return values[index];
 			}
@@ -349,10 +350,17 @@ public class Projects {
 		btnAddNewProject = new JButton("Add Project");
 		btnAddNewProject.addMouseListener(new BtnAddNewProjectMouseListener());
 		GridBagConstraints gbc_btnAddNewProject = new GridBagConstraints();
-		gbc_btnAddNewProject.insets = new Insets(0, 0, 0, 5);
+		gbc_btnAddNewProject.insets = new Insets(0, 0, 5, 5);
 		gbc_btnAddNewProject.gridx = 0;
 		gbc_btnAddNewProject.gridy = 2;
 		frame.getContentPane().add(btnAddNewProject, gbc_btnAddNewProject);
+		
+		lblInfo = new JLabel("");
+		GridBagConstraints gbc_lblInfo = new GridBagConstraints();
+		gbc_lblInfo.insets = new Insets(0, 0, 0, 5);
+		gbc_lblInfo.gridx = 1;
+		gbc_lblInfo.gridy = 2;
+		frame.getContentPane().add(lblInfo, gbc_lblInfo);
 		
 		for (int i = 0; i < projects.length(); i++) {
 			try {
@@ -372,7 +380,9 @@ public class Projects {
 		
 	}
 	
+	// Select a project to delete it
 	private class ChckbxSelectProjectItemListener implements ItemListener {
+		@Override
 		public void itemStateChanged(ItemEvent arg0) {
 			panels_selected.clear();
 			// Obtain the selected panels.
@@ -402,6 +412,7 @@ public class Projects {
 		}
 	}
 	
+	// View a specific project
 	private class PnlProjectMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent event) {
@@ -426,9 +437,12 @@ public class Projects {
 			txt_view_created.setText(((MyProjectPanel) event.getSource()).associated_project.getCreated_at());
 			textPane_description.setText(((MyProjectPanel) event.getSource()).associated_project.getDescription());
 			txt_view_manager.setText(((MyProjectPanel) event.getSource()).associated_project.getManager());
+			frame.repaint();
+			frame.revalidate();
 		}
 	}
 	
+	// Delete selected projects
 	private class Lbl_DeleteMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent mouse_event) {
@@ -442,8 +456,9 @@ public class Projects {
 					BufferedWriter outstream = new BufferedWriter(file);
 					outstream.write(obj.toString());
 					outstream.close();
+					showStatusInfo(Color.GREEN, "Projects have been removed.");
 				} catch (JSONException | IOException e) {
-					// TODO Auto-generated catch block
+					showStatusInfo(Color.RED, "Projects have not been removed correctly");
 					e.printStackTrace();
 				}
 				my_panel.getCheckBox().setSelected(false);
@@ -451,8 +466,10 @@ public class Projects {
 				pnl_project.remove(my_panel);
 			}
 			panels_selected.clear();
+			
 		}
 	}
+	// Add a new project
 	private class BtnAddNewProjectMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent arg0) {
@@ -472,8 +489,9 @@ public class Projects {
 					BufferedWriter outstream = new BufferedWriter(file);
 					outstream.write(obj.toString());
 					outstream.close();
+					showStatusInfo(Color.GREEN, "Project has been added");
 				} catch (JSONException | IOException e) {
-					// TODO Auto-generated catch block
+					showStatusInfo(Color.RED, "Project has not been added correctly.");
 					e.printStackTrace();
 				}
 				
@@ -493,11 +511,21 @@ public class Projects {
 			}
 		}
 	}
+	// Edit a project
 	private class BtnEditProjectInfoMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent arg0) {
-			if (!txt_view_name.getText().equals(""))
+			MyProjectPanel panel_to_change = null;
+			for (int i = 0; i < pnl_project.size(); i++) {
+				if (pnl_project.get(i).associated_project.equals(current_proj)) {
+					panel_to_change = pnl_project.get(i);
+					break;
+				}
+			}
+			if (!txt_view_name.getText().equals("")) {
 				current_proj.setName(txt_view_name.getText());
+				panel_to_change.lblProjectName.setText(txt_view_name.getText());
+			}
 			if (!txt_view_manager.getText().equals(""))
 				current_proj.setManager(txt_view_manager.getText());
 			if (!txt_view_created.getText().equals(""))
@@ -506,46 +534,105 @@ public class Projects {
 				current_proj.setDescription(textPane_description.getText());
 			
 			try {
-				JSONObject proj = projects.getJSONObject(0);
+				JSONObject proj = projects.getJSONObject(ThreadLocalRandom.current().nextInt(0, projects.length() + 1));
 				proj.put("name", current_proj.getName());
 				proj.put("created_at", current_proj.getCreated_at());
 				proj.put("manager", current_proj.getManager());
 				proj.put("description", current_proj.getDescription());
+				// If image has been modified
+				if (new_path != null) {
+					// Save image into MyProjectPanel
+					if (new_path.contains("resources/")) {
+						ImageIcon icon = new ImageIcon(MyProjectPanel.class.getResource(new_path));
+						Image img = icon.getImage();
+						Image scaled = img.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
+						ImageIcon scaled_icon = new ImageIcon(scaled);
+						panel_to_change.lblProjectImage.setIcon(scaled_icon);
+					} else {
+						ImageIcon icon = new ImageIcon(new_path);
+						Image img = icon.getImage();
+						Image scaled = img.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
+						ImageIcon scaled_icon = new ImageIcon(scaled);
+						panel_to_change.lblProjectImage.setIcon(scaled_icon);
+					}
+					// Save path into JSON object
+					current_proj.setImage_path(new_path);
+					proj.put("image_path", current_proj.getImage_path());
+					new_path = null;
+				}
+				
 				FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
 				BufferedWriter outstream = new BufferedWriter(file);
 				outstream.write(obj.toString());
 				outstream.close();
+				showStatusInfo(Color.GREEN, "Project has been edited");
 			} catch (JSONException | IOException e) {
-				// TODO Auto-generated catch block
+				showStatusInfo(Color.RED, "Project has not been edited correctly");
 				e.printStackTrace();
 			}
-			frame.repaint();
-			frame.revalidate();
+			repaintPanels();
 		}
 	}
+	// Change image
 	private class Lbl_view_imageMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			try {
-			   JFileChooser file_chooser = new JFileChooser();
-			   file_chooser.showOpenDialog(panel);
-			   FileFilter imageFilter = new FileNameExtensionFilter("Image Files", ImageIO.getReaderFileSuffixes());
-			   file_chooser.setFileFilter(imageFilter);
-			   String path = file_chooser.getSelectedFile().getAbsolutePath();
-			   if (path != null) {
-				   current_proj.setImage_path(path);
-				   JSONObject proj = projects.getJSONObject(0);
-				   proj.put("image_path", current_proj.getImage_path());
-				   FileWriter file = new FileWriter("/home/ivangarrera/Desktop/data.json");
-				   BufferedWriter outstream = new BufferedWriter(file);
-				   outstream.write(obj.toString());
-				   outstream.close();
-			   }
-			} catch(Exception ex){
-			     ex.printStackTrace();
-			}
-			frame.repaint();
-			frame.revalidate();
+			
+		   JFileChooser file_chooser = new JFileChooser();
+		   file_chooser.showOpenDialog(panel);
+		   FileFilter imageFilter = new FileNameExtensionFilter("Image Files", ImageIO.getReaderFileSuffixes());
+		   file_chooser.setFileFilter(imageFilter);
+		   new_path = file_chooser.getSelectedFile().getAbsolutePath();
 		}
+	}
+	// Search a project
+	private class Btn_searchMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			String text_to_search = txtSearch.getText();
+			ArrayList<MyProjectPanel> panels_according_search = new ArrayList<>();
+			// Get panels that match with the search
+			for (int i = 0; i < pnl_project.size(); i++) {
+				if (pnl_project.get(i).associated_project.getName().contains(text_to_search)) {
+					panels_according_search.add(pnl_project.get(i));
+				}
+			}
+			// Paint the panels
+			pnl_projects.removeAll();
+			if (text_to_search.isEmpty()) {
+				repaintPanels();
+			} else {
+				for (int i = 0; i < panels_according_search.size(); i++) {
+					pnl_projects.add(panels_according_search.get(i), "Project");
+					pnl_project.get(i).addMouseListener(new PnlProjectMouseListener());
+					pnl_project.get(i).getCheckBox().addItemListener(new ChckbxSelectProjectItemListener());
+				}
+			}
+			pnl_projects.updateUI();
+		}
+	}
+	
+	private void showStatusInfo(Color color, String text_to_show) {
+		lblInfo.setForeground(color);
+		lblInfo.setText(text_to_show);
+		ActionListener taskPerformer = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				lblInfo.setText("");
+			}
+		};
+		javax.swing.Timer timer = new javax.swing.Timer(2500, taskPerformer);
+		timer.setRepeats(false);
+		timer.start();
+	}
+	
+	private void repaintPanels() {
+		pnl_projects.removeAll();
+		for (int i = 0; i < pnl_project.size(); i++) {
+			pnl_projects.add(pnl_project.get(i), "Project");
+			pnl_project.get(i).addMouseListener(new PnlProjectMouseListener());
+			pnl_project.get(i).getCheckBox().addItemListener(new ChckbxSelectProjectItemListener());
+		}
+		pnl_projects.updateUI();
 	}
 }

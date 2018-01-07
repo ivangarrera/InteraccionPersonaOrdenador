@@ -1,3 +1,4 @@
+package com.ipo;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
@@ -32,7 +33,7 @@ public class MyProjectPanel extends JPanel{
 		lblProjectImage = new JLabel("");
 		lblProjectImage.setHorizontalAlignment(SwingConstants.CENTER);
 		if (associated_project.getImage_path().contains("resources/")) {
-			ImageIcon icon = new ImageIcon(MyProjectPanel.class.getResource(associated_project.getImage_path()));
+			ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource(associated_project.getImage_path()));
 			Image img = icon.getImage();
 			Image scaled = img.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
 			ImageIcon scaled_icon = new ImageIcon(scaled);

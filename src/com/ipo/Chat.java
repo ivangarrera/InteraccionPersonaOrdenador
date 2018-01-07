@@ -1,3 +1,4 @@
+package com.ipo;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -30,6 +31,64 @@ public class Chat {
 		initialize();
 	}
 
+	private JLabel getIcon_chat() {
+		if (icon_chat == null) {
+			icon_chat = new JLabel("");
+			icon_chat.setIcon(new ImageIcon(Chat.class.getResource("/resources/harry_potter_icon.png")));
+		}
+		return icon_chat;
+	}
+	private JLabel getIcon_clip() {
+		if (icon_clip == null) {
+			icon_clip = new JLabel("");
+			icon_clip.setIcon(new ImageIcon(Chat.class.getResource("/resources/icon-clip.png")));
+		}
+		return icon_clip;
+	}
+	private JLabel getIcon_send() {
+		if (icon_send == null) {
+			icon_send = new JLabel("");
+			icon_send.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					String txt = getTxt_msg().getText();
+					textArea.append(txt+"\n");
+					txt_msg.setText("");	
+				}
+			});
+			icon_send.setIcon(new ImageIcon(Chat.class.getResource("/resources/icon_send.png")));
+		}
+		return icon_send;
+	}
+	private JLabel getLblTasks() {
+		if (lblTasks == null) {
+			lblTasks = new JLabel("Tasks");
+		}
+		return lblTasks;
+	}
+	private JScrollPane getScrollPane() {
+		if (scrollPane == null) {
+			scrollPane = new JScrollPane();
+			scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+			scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+			scrollPane.setAutoscrolls(true);
+			scrollPane.setViewportView(getTextArea());
+		}
+		return scrollPane;
+	}
+	private JTextArea getTextArea() {
+		if (textArea == null) {
+			textArea = new JTextArea();
+		}
+		return textArea;
+	}
+	private JTextField getTxt_msg() {
+		if (txt_msg == null) {
+			txt_msg = new JTextField();
+			txt_msg.setColumns(10);
+		}
+		return txt_msg;
+	}
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -70,63 +129,5 @@ public class Chat {
 		gbc_icon_send.gridx = 3;
 		gbc_icon_send.gridy = 2;
 		frame.getContentPane().add(getIcon_send(), gbc_icon_send);
-	}
-	private JLabel getIcon_send() {
-		if (icon_send == null) {
-			icon_send = new JLabel("");
-			icon_send.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					String txt = getTxt_msg().getText();
-					textArea.append(txt+"\n");
-					txt_msg.setText("");	
-				}
-			});
-			icon_send.setIcon(new ImageIcon(Chat.class.getResource("/resources/icon_send.png")));
-		}
-		return icon_send;
-	}
-	private JLabel getIcon_clip() {
-		if (icon_clip == null) {
-			icon_clip = new JLabel("");
-			icon_clip.setIcon(new ImageIcon(Chat.class.getResource("/resources/icon-clip.png")));
-		}
-		return icon_clip;
-	}
-	private JLabel getIcon_chat() {
-		if (icon_chat == null) {
-			icon_chat = new JLabel("");
-			icon_chat.setIcon(new ImageIcon(Chat.class.getResource("/resources/harry_potter_icon.png")));
-		}
-		return icon_chat;
-	}
-	private JTextField getTxt_msg() {
-		if (txt_msg == null) {
-			txt_msg = new JTextField();
-			txt_msg.setColumns(10);
-		}
-		return txt_msg;
-	}
-	private JLabel getLblTasks() {
-		if (lblTasks == null) {
-			lblTasks = new JLabel("Tasks");
-		}
-		return lblTasks;
-	}
-	private JScrollPane getScrollPane() {
-		if (scrollPane == null) {
-			scrollPane = new JScrollPane();
-			scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-			scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-			scrollPane.setAutoscrolls(true);
-			scrollPane.setViewportView(getTextArea());
-		}
-		return scrollPane;
-	}
-	private JTextArea getTextArea() {
-		if (textArea == null) {
-			textArea = new JTextArea();
-		}
-		return textArea;
 	}
 }

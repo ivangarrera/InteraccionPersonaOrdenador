@@ -130,6 +130,7 @@ public class Login {
 			MessagesIpoProject.setIdioma("spanish");
 			Login ventana = new Login("spanish");
 			ventana.frmLogin.setVisible(true);
+			language = "spanish";
 			frmLogin.dispose();
 		}
 	}
@@ -139,6 +140,7 @@ public class Login {
 			MessagesIpoProject.setIdioma("");
 			Login ventana = new Login("english");
 			ventana.frmLogin.setVisible(true);
+			language = "english";
 			frmLogin.dispose();
 		}
 	}
@@ -158,7 +160,7 @@ public class Login {
 			}
 		});
 	}
-	private JFrame frmLogin;
+	public JFrame frmLogin;
 	private JPanel panel_new_user;
 	private JPanel panel_existing_user;
 	private JPanel panel_image;

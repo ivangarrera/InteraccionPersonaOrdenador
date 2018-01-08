@@ -191,7 +191,6 @@ public class Projects {
 				lbl_Delete.setVisible(true);
 				btn_search.setVisible(false);
 				lbl_filter.setVisible(false);
-				lbl_settings.setVisible(false);
 				lbl_projects_selected.setVisible(true);
 				lbl_projects_selected.setText("");
 				lbl_projects_selected.setText(panels_selected.size() + " Project Selected");
@@ -200,7 +199,6 @@ public class Projects {
 				txtSearch.setVisible(true);
 				btn_search.setVisible(true);
 				lbl_filter.setVisible(true);
-				lbl_settings.setVisible(true);
 				lbl_Delete.setVisible(false);
 			}
 		}
@@ -235,7 +233,7 @@ public class Projects {
 	private class Lbl_filterMouseListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent arg0) {
-			MyProjectInfo window = new MyProjectInfo(language);
+			MyProjectInfo window = new MyProjectInfo(registered_user, language);
 			window.frame.setVisible(true);
 			frame.setVisible(false);
 			frame.dispose();
@@ -282,6 +280,15 @@ public class Projects {
 			frame.revalidate();
 		}
 	}
+	private class Lbl_backMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			Profile window = new Profile(registered_user, language);
+			window.frame.setVisible(true);
+			frame.setVisible(false);
+			frame.dispose();
+		}
+	}
 	public JFrame frame;
 	private JPanel pnl_projects;
 	private JPanel panel;
@@ -291,7 +298,6 @@ public class Projects {
 	private JTextField txtSearch;
 	private JButton btn_search;
 	private JLabel lbl_filter;
-	private JLabel lbl_settings;
 	private JButton btnAddNewProject;
 	private JLabel lbl_projects_selected;
 	private JLabel lbl_Delete;
@@ -319,15 +325,20 @@ public class Projects {
 	
 	private String new_path;
 	private String language;
+	private String registered_user;
 	private Project current_proj;
 	private JLabel lblInfo;
+	private JLabel lbl_back;
 	/**
 	 * Create the application.
 	 */
-	public Projects(String language) {
+	public Projects(String registered_user, String language) {
 		this.language = language;
+		this.registered_user = registered_user;
 		if (language.equals("spanish")) 
 			ProjectsMessages.setIdioma("spanish");
+		else
+			MessagesProfile.setIdioma("");
 		pnl_project = new ArrayList<>();
 		panels_selected = new ArrayList<>();
 		initialize();
@@ -360,7 +371,8 @@ public class Projects {
 		}
 		
 		frame = new JFrame();
-		frame.setBounds(0, 0, 1250, 700);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		frame.setUndecorated(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{0, 310, 0};
@@ -377,9 +389,9 @@ public class Projects {
 		gbc_panel.gridy = 0;
 		frame.getContentPane().add(panel, gbc_panel);
 		GridBagLayout gbl_panel = new GridBagLayout();
-		gbl_panel.columnWidths = new int[]{168, 114, 0, 0, 0, 0, 0};
+		gbl_panel.columnWidths = new int[]{168, 114, 0, 0, 0, 0, 0, 0};
 		gbl_panel.rowHeights = new int[]{19, 0, 0};
-		gbl_panel.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		gbl_panel.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
 		panel.setLayout(gbl_panel);
 		
@@ -388,7 +400,7 @@ public class Projects {
 		txtSearch.setText(ProjectsMessages.getString("Projects.txtSearch.text")); //$NON-NLS-1$
 		GridBagConstraints gbc_txtSearch = new GridBagConstraints();
 		gbc_txtSearch.insets = new Insets(0, 0, 5, 5);
-		gbc_txtSearch.gridx = 0;
+		gbc_txtSearch.gridx = 1;
 		gbc_txtSearch.gridy = 0;
 		panel.add(txtSearch, gbc_txtSearch);
 		txtSearch.setColumns(10);
@@ -397,31 +409,29 @@ public class Projects {
 		btn_search.addMouseListener(new Btn_searchMouseListener());
 		GridBagConstraints gbc_btn_search = new GridBagConstraints();
 		gbc_btn_search.insets = new Insets(0, 0, 5, 5);
-		gbc_btn_search.gridx = 1;
+		gbc_btn_search.gridx = 2;
 		gbc_btn_search.gridy = 0;
 		panel.add(btn_search, gbc_btn_search);
 		
 		lbl_filter = new JLabel("");
 		lbl_filter.addMouseListener(new Lbl_filterMouseListener());
-		lbl_filter.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("resources/filter.png")));
+		
+		ImageIcon icon_filter = new ImageIcon(this.getClass().getClassLoader().getResource("resources/task.png"));
+		Image img_filter = icon_filter.getImage();
+		Image scaled_filter = img_filter.getScaledInstance(35, 35, java.awt.Image.SCALE_SMOOTH);
+		ImageIcon scaled_icon_filter = new ImageIcon(scaled_filter);
+		lbl_filter.setIcon(scaled_icon_filter);
+		
 		GridBagConstraints gbc_lbl_filter = new GridBagConstraints();
 		gbc_lbl_filter.insets = new Insets(0, 0, 5, 5);
-		gbc_lbl_filter.gridx = 2;
+		gbc_lbl_filter.gridx = 3;
 		gbc_lbl_filter.gridy = 0;
 		panel.add(lbl_filter, gbc_lbl_filter);
 		
-		lbl_settings = new JLabel("");
-		lbl_settings.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("resources/settings.png")));
-		GridBagConstraints gbc_lbl_settings = new GridBagConstraints();
-		gbc_lbl_settings.insets = new Insets(0, 0, 5, 5);
-		gbc_lbl_settings.gridx = 3;
-		gbc_lbl_settings.gridy = 0;
-		panel.add(lbl_settings, gbc_lbl_settings);
-		
 		lbl_projects_selected = new JLabel("");
 		GridBagConstraints gbc_lbl_projects_selected = new GridBagConstraints();
-		gbc_lbl_projects_selected.insets = new Insets(0, 0, 5, 0);
-		gbc_lbl_projects_selected.gridx = 4;
+		gbc_lbl_projects_selected.insets = new Insets(0, 0, 5, 5);
+		gbc_lbl_projects_selected.gridx = 5;
 		gbc_lbl_projects_selected.gridy = 0;
 		panel.add(lbl_projects_selected, gbc_lbl_projects_selected);
 		
@@ -430,10 +440,23 @@ public class Projects {
 		lbl_Delete.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("resources/trash.png")));
 		lbl_Delete.setVisible(false);
 		GridBagConstraints gbc_lbl_Delete = new GridBagConstraints();
-		gbc_lbl_Delete.insets = new Insets(0, 0, 0, 5);
-		gbc_lbl_Delete.gridx = 5;
+		gbc_lbl_Delete.insets = new Insets(0, 0, 5, 0);
+		gbc_lbl_Delete.gridx = 6;
 		gbc_lbl_Delete.gridy = 0;
 		panel.add(lbl_Delete, gbc_lbl_Delete);
+		
+		lbl_back = new JLabel(); 
+		lbl_back.addMouseListener(new Lbl_backMouseListener());
+		ImageIcon icon_back = new ImageIcon(this.getClass().getClassLoader().getResource("resources/icon_back.png"));
+		Image img_back = icon_back.getImage();
+		Image scaled_back = img_back.getScaledInstance(35, 35, java.awt.Image.SCALE_SMOOTH);
+		ImageIcon scaled_icon_back = new ImageIcon(scaled_back);
+		lbl_back.setIcon(scaled_icon_back);
+		GridBagConstraints gbc_lbl_back = new GridBagConstraints();
+		gbc_lbl_back.insets = new Insets(0, 0, 0, 5);
+		gbc_lbl_back.gridx = 0;
+		gbc_lbl_back.gridy = 0;
+		panel.add(lbl_back, gbc_lbl_back);
 		
 		pnl_projects = new JPanel();
 		pnl_projects.setBorder(new TitledBorder(null, ProjectsMessages.getString("Projects.pnl_projects.borderTitle"), TitledBorder.LEADING, TitledBorder.TOP, null, null)); //$NON-NLS-1$

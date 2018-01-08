@@ -18,11 +18,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -32,10 +34,14 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class Profile {
 
@@ -66,9 +72,17 @@ public class Profile {
 					e1.printStackTrace();
 				}
 			}
+			// Modify image
+			if (new_path != null) {
+				try {
+					current_user_json.put("image_path", new_path);
+				} catch (JSONException e1) {
+					e1.printStackTrace();
+				}
+			}
 			// Write in external JSON file.
-			if (!textField_name.getText().isEmpty() || !textField_user.getText().isEmpty() 
-					|| !passwordField_password.getText().isEmpty()) {
+			if ((!textField_name.getText().isEmpty() || !textField_user.getText().isEmpty() 
+					|| !passwordField_password.getText().isEmpty()) || new_path != null) {
 				try {
 					obj.put("users", users);
 					FileWriter file = new FileWriter(this.getClass().getClassLoader().getResource("data.json").getPath());
@@ -77,6 +91,21 @@ public class Profile {
 					outstream.close();
 					lbl_status_info.setForeground(Color.GREEN);
 					lbl_status_info.setText("User has been modified.");
+					// Change image
+					if (new_path.contains("resources/")) {
+						ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource(new_path));
+						Image img = icon.getImage();
+						Image scaled = img.getScaledInstance(225, 225, java.awt.Image.SCALE_SMOOTH);
+						ImageIcon scaled_icon = new ImageIcon(scaled);
+						lbl_image.setIcon(scaled_icon);
+					} else {
+						ImageIcon init_icon = new ImageIcon(new_path);
+						Image img = init_icon.getImage();
+						Image scaled = img.getScaledInstance(225, 225, java.awt.Image.SCALE_SMOOTH);
+						ImageIcon scaled_icon = new ImageIcon(scaled);
+						lbl_image.setIcon(scaled_icon);
+					}
+					new_path = null;
 					ActionListener taskPerformer = new ActionListener() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
@@ -92,6 +121,7 @@ public class Profile {
 				} catch (JSONException | IOException ex) {
 					lbl_status_info.setForeground(Color.RED);
 					lbl_status_info.setText("User hasn't been modified.");
+					
 					ActionListener taskPerformer = new ActionListener() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
@@ -161,7 +191,7 @@ public class Profile {
 		public void mouseClicked(MouseEvent mouse_event) {
 			if (mouse_event.getClickCount() == 2 && mouse_event.getButton() == MouseEvent.BUTTON1) {
 				try {
-					Projects window = new Projects(language);
+					Projects window = new Projects(user_registered.getUser(), language);
 					window.frame.setVisible(true);
 					frame.setVisible(false);
 					frame.dispose();
@@ -171,6 +201,26 @@ public class Profile {
 			}
 		}
 	}
+	private class Pnl_imageMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			JFileChooser file_chooser = new JFileChooser();
+			file_chooser.showOpenDialog(pnl_image);
+			FileFilter imageFilter = new FileNameExtensionFilter("Image Files", ImageIO.getReaderFileSuffixes());
+			file_chooser.setFileFilter(imageFilter);
+			new_path = file_chooser.getSelectedFile().getAbsolutePath();
+		}
+	}
+	private class BtnCloseSessionMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			Login window = new Login(language);
+			window.frmLogin.setVisible(true);
+			frame.setVisible(false);
+			frame.dispose();
+		}
+	}
+	
 	public JFrame frame;
 	private JPanel pnl_image;
 	private JPanel pnl_user_data;
@@ -208,6 +258,8 @@ public class Profile {
 	private JLabel lbl_status_info;
 
 	private String language;
+	private String new_path;
+	private JButton btnCloseSession;
 	
 	/**
 	 * Create the application.
@@ -216,6 +268,9 @@ public class Profile {
 		this.language = language;
 		if (language.equals("spanish"))
 			MessagesProfile.setIdioma("spanish");
+		else
+			MessagesProfile.setIdioma("");
+
 		try {
 			StringBuilder sb = new StringBuilder();
 
@@ -289,7 +344,8 @@ public class Profile {
 		
 		
 		frame = new JFrame();
-		frame.setBounds(100, 100, 750, 550);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		frame.setUndecorated(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{261, 176, 0};
@@ -299,6 +355,7 @@ public class Profile {
 		frame.getContentPane().setLayout(gridBagLayout);
 		
 		pnl_image = new JPanel();
+		pnl_image.addMouseListener(new Pnl_imageMouseListener());
 		GridBagConstraints gbc_pnl_image = new GridBagConstraints();
 		gbc_pnl_image.insets = new Insets(0, 0, 5, 5);
 		gbc_pnl_image.fill = GridBagConstraints.BOTH;
@@ -548,10 +605,18 @@ public class Profile {
 		
 		lbl_status_info = new JLabel("");
 		GridBagConstraints gbc_lbl_status_info = new GridBagConstraints();
-		gbc_lbl_status_info.insets = new Insets(0, 0, 0, 5);
+		gbc_lbl_status_info.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl_status_info.gridx = 0;
 		gbc_lbl_status_info.gridy = 4;
 		frame.getContentPane().add(lbl_status_info, gbc_lbl_status_info);
+		
+		btnCloseSession = new JButton(MessagesProfile.getString("Profile.btnNewButton.text")); //$NON-NLS-1$
+		btnCloseSession.addMouseListener(new BtnCloseSessionMouseListener());
+		GridBagConstraints gbc_btnCloseSession = new GridBagConstraints();
+		gbc_btnCloseSession.insets = new Insets(0, 0, 0, 5);
+		gbc_btnCloseSession.gridx = 0;
+		gbc_btnCloseSession.gridy = 2;
+		frame.getContentPane().add(btnCloseSession, gbc_btnCloseSession);
 	}
 	
 }

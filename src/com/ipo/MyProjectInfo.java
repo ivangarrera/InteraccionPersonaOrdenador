@@ -59,7 +59,7 @@ public class MyProjectInfo {
 		@Override
 		public void mouseClicked(MouseEvent arg0) {
 			try {
-				Projects window = new Projects(language);
+				Projects window = new Projects(registered_user, language);
 				window.frame.setVisible(true);
 				frame.setVisible(false);
 				frame.dispose();
@@ -125,13 +125,17 @@ public class MyProjectInfo {
 	private JSONArray resources;
 	private JSONObject global_object;
 	private String language;
+	private String registered_user;
 	/**
 	 * Create the application.
 	 */
-	public MyProjectInfo(String language) {
+	public MyProjectInfo(String registered_user, String language) {
 		this.language = language;
+		this.registered_user = registered_user;
 		if (language.equals("spanish")) 
 			ProjectInfo.setIdioma("spanish");
+		else
+			MessagesProfile.setIdioma("");
 		values = new ArrayList<String>(); 
 		images_labels = new ArrayList<>();
 		calendar = new JCalendar();
@@ -147,7 +151,8 @@ public class MyProjectInfo {
 				public void mouseClicked(MouseEvent e) {
 					if(e.getClickCount() == 1){
 						// Clean resources panel
-						((JPanel)scrollPane.getViewport().getView()).removeAll();
+						scrollPane.getViewport().removeAll();
+						scrollPane.getViewport().setView(new JPanel());
 						 dateStart = dateChooserStart.getDate();
 						 strDateStart = DateFormat.getDateInstance().format(dateStart);
 						 dateEnd = dateChooserEnd.getDate();
@@ -207,7 +212,8 @@ public class MyProjectInfo {
 						FileFilter imageFilter = new FileNameExtensionFilter("Image Files", ImageIO.getReaderFileSuffixes());
 						file_chooser.setFileFilter(imageFilter);
 						String path = file_chooser.getSelectedFile().getAbsolutePath();
-						((JPanel)scrollPane.getViewport().getView()).removeAll();
+						scrollPane.getViewport().removeAll();
+						scrollPane.getViewport().setView(new JPanel());;
 						try {
 							JSONObject obj = new JSONObject();
 							obj.put("resource", path);
@@ -242,7 +248,8 @@ public class MyProjectInfo {
 										scrollPane.repaint();
 										scrollPane.revalidate();
 									}
-								}	
+								}
+								images_labels.clear();
 							}
 							FileWriter file = new FileWriter(this.getClass().getClassLoader().getResource("data.json").getPath());
 							BufferedWriter outstream = new BufferedWriter(file);
@@ -265,6 +272,10 @@ public class MyProjectInfo {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if (e.getClickCount() == 1) {
+						// Clean resources panel
+						scrollPane.getViewport().removeAll();
+						scrollPane.getViewport().setView(new JPanel());
+						
 						btnAdd.setVisible(true);
 						btnModify.setVisible(false);
 						btnDelete.setVisible(false);
@@ -429,7 +440,11 @@ public class MyProjectInfo {
 		if (lbimagetask == null) {
 			lbimagetask = new JLabel("");
 			lbimagetask.addMouseListener(new LbimagetaskMouseListener());
-			lbimagetask.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("resources/task.png")));
+			ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/icon_back.png"));
+			Image img = icon.getImage();
+			Image scaled = img.getScaledInstance(50, 50, java.awt.Image.SCALE_SMOOTH);
+			ImageIcon scaled_icon = new ImageIcon(scaled);
+			lbimagetask.setIcon(scaled_icon);
 		}
 		return lbimagetask;
 	}
@@ -489,12 +504,54 @@ public class MyProjectInfo {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if (e.getClickCount() == 1) {
+						images_labels.clear();
 						btnModify.setVisible(true);
 						btnDelete.setVisible(true);
 						btnAdd.setVisible(false);
 						pnlAddTask.setBorder(new TitledBorder(null, "Task Info", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 						pnlAddTask.setVisible(true);
 						index = list.locationToIndex(e.getPoint());
+						
+						scrollPane.getViewport().removeAll();
+						scrollPane.getViewport().setView(new JPanel());;
+						try {
+							for (int i = 0; i < resources.length(); i++) {
+								String path_res = resources.getJSONObject(i).getString("resource");
+								if (path_res.contains("resources/")) {
+									JLabel my_lab = new JLabel();
+									ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource(path_res));
+									Image img = icon.getImage();
+									Image scaled = img.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
+									ImageIcon scaled_icon = new ImageIcon(scaled);
+									my_lab.setIcon(scaled_icon);
+									images_labels.add(my_lab);
+									for (JLabel lbl : images_labels)  {
+										lbl.setVisible(true);
+										((JPanel)scrollPane.getViewport().getView()).add(lbl);
+										scrollPane.repaint();
+										scrollPane.revalidate();
+									}
+								} else {
+									JLabel my_lab = new JLabel();
+									ImageIcon icon = new ImageIcon(path_res);
+									Image img = icon.getImage();
+									Image scaled = img.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
+									ImageIcon scaled_icon = new ImageIcon(scaled);
+									my_lab.setIcon(scaled_icon);
+									images_labels.add(my_lab);
+									for (JLabel lbl : images_labels)  {
+										lbl.setVisible(true);
+										((JPanel)scrollPane.getViewport().getView()).add(lbl);
+										scrollPane.repaint();
+										scrollPane.revalidate();
+									}
+								}
+								images_labels.clear();
+							}
+						} catch (JSONException e1) {
+							e1.printStackTrace();
+						}
+						
 				        try {				      
 			    			StringBuilder sb = new StringBuilder();
 			    		    String line;
@@ -757,7 +814,8 @@ public class MyProjectInfo {
 		
 		updateList();
 		frame = new JFrame();
-		frame.setBounds(100, 100, 1000, 850);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		frame.setUndecorated(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{216, 277, 384, 0};

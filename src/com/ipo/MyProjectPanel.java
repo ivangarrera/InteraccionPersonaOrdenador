@@ -1,31 +1,18 @@
-import java.awt.EventQueue;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Image;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-import javax.swing.JLabel;
-import javax.swing.AbstractButton;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.SwingConstants;
-import java.awt.BorderLayout;
-import java.awt.GridBagLayout;
+package com.ipo;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
-import java.awt.Window;
 
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
-import java.awt.event.ItemListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 public class MyProjectPanel extends JPanel{
-	private JLabel lblProjectImage;
-	private JLabel lblProjectName;
+	public JLabel lblProjectImage;
+	public JLabel lblProjectName;
 	public Project associated_project;
 	private JCheckBox chckbxSelectProject;
 	
@@ -46,7 +33,7 @@ public class MyProjectPanel extends JPanel{
 		lblProjectImage = new JLabel("");
 		lblProjectImage.setHorizontalAlignment(SwingConstants.CENTER);
 		if (associated_project.getImage_path().contains("resources/")) {
-			ImageIcon icon = new ImageIcon(MyProjectPanel.class.getResource(associated_project.getImage_path()));
+			ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource(associated_project.getImage_path()));
 			Image img = icon.getImage();
 			Image scaled = img.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
 			ImageIcon scaled_icon = new ImageIcon(scaled);
